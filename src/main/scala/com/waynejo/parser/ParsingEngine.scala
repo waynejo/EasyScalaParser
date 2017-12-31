@@ -1,32 +1,38 @@
 package com.waynejo.parser
 
 import com.waynejo.parser.element._
+import com.waynejo.parser.types._
 
 object ParsingEngine {
 
-    private def _parse[A](parsingElement: ParsingElement[A], text: String, terminals: List[TerminalParsingElement]): Option[(String, A)] = {
+    private def _parse[A](parsingElement: ParsingElement[A], text: String, terminals: List[TerminalParsingElement]): Either[ParsingFailInfo, ParsingSuccessInfo[A]] = {
         parsingElement match {
             case SimpleParsingElement(token) =>
                 if (text.startsWith(token)) {
-                    Some((text.substring(token.length), token))
+                    Right(ParsingSuccessInfo(text.substring(token.length), token))
                 } else {
-                    None
+                    Left(ParsingFailInfo())
                 }
             case AndParsingElement2(pe0, pe1, reducer, _) =>
                 for {
-                    (remain0, v0) <- _parse(pe0, text, terminals)
-                    (remain1, v1) <- _parse(pe1, remain0, Nil)
-                } yield (remain1, reducer((v0, v1)))
+                    r0 <- _parse(pe0, text, terminals)
+                    r1 <- _parse(pe1, r0.remain, Nil)
+                } yield ParsingSuccessInfo(r1.remain, reducer((r0.result, r1.result)))
             case AndParsingElement3(pe0, pe1, pe2, reducer, _) =>
                 for {
-                    (remain0, v0) <- _parse(pe0, text, terminals)
-                    (remain1, v1) <- _parse(pe1, remain0, Nil)
-                    (remain2, v2) <- _parse(pe2, remain1, Nil)
-                } yield (remain2, reducer((v0, v1, v2)))
+                    r0 <- _parse(pe0, text, terminals)
+                    r1 <- _parse(pe1, r0.remain, Nil)
+                    r2 <- _parse(pe2, r1.remain, Nil)
+                } yield ParsingSuccessInfo(r2.remain, reducer((r0.result, r1.result, r2.result)))
+            case OrParsingElement2(pe0, pe1, reducer, _) =>
+                _parse(pe0, text, terminals).map(x => ParsingSuccessInfo(x.remain, reducer(Type1(x.result))))
+                    .left.flatMap { case (failInfo: ParsingFailInfo) =>
+                        _parse(pe1, text, terminals).map(x => ParsingSuccessInfo(x.remain, reducer(Type2(x.result))))
+                    }
         }
     }
 
     def parse[A](parsingElement: ParsingElement[A], text: String): Option[A] = {
-        _parse(parsingElement, text, Nil).map(_._2)
+        _parse(parsingElement, text, Nil).toOption.map(_.result)
     }
 }
