@@ -13,6 +13,8 @@ object ParsingEngine {
                 } else {
                     Left(ParsingFailInfo())
                 }
+            case ReferenceParsingElement(reference) =>
+                _parse(reference(), text, terminals)
             case AndParsingElement2(pe0, pe1, reducer, _) =>
                 for {
                     r0 <- _parse(pe0, text, terminals)

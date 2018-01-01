@@ -19,4 +19,8 @@ object Parser {
     def or[A, B, C](v0: ParsingElement[A], v1: ParsingElement[B])(reducer: (MultipleType2[A, B]) => C) : ParsingElement[C] = {
         OrParsingElement2[A, B, C](v0, v1, reducer)
     }
+
+    def refer[A](v: () => ParsingElement[A]) : ParsingElement[A] = {
+        ReferenceParsingElement[A](v)
+    }
 }
