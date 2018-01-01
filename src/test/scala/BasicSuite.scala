@@ -64,4 +64,19 @@ class BasicSuite extends FunSuite {
         assert(parser.parse("cd").contains(ParsingResult("cd")))
         assert(parser.parse("ef").isEmpty)
     }
+
+    test("simple 'option'") {
+        case class ParsingResult(v0: String)
+
+        val parser = Parser.and("ab", "cd".option, "ef") {
+            case (v0, Some(v1), v2) =>
+                ParsingResult(v0 + v1 + v2)
+            case (v0, None, v2) =>
+                ParsingResult(v0 + v2)
+        }
+
+        assert(parser.parse("abcdef").contains(ParsingResult("abcdef")))
+        assert(parser.parse("abef").contains(ParsingResult("abef")))
+        assert(parser.parse("ab").isEmpty)
+    }
 }

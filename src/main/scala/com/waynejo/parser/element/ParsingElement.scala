@@ -8,4 +8,8 @@ trait ParsingElement[+A] {
     def parse(text: String): Option[A] = {
         ParsingEngine.parse(this, text)
     }
+
+    def option: ParsingElement[Option[A]] = {
+        OptionParsingElement[A](this)
+    }
 }

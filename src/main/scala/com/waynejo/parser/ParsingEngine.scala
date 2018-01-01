@@ -15,6 +15,13 @@ object ParsingEngine {
                 }
             case ReferenceParsingElement(reference) =>
                 _parse(reference(), text, terminals)
+            case OptionParsingElement(reference) =>
+                _parse(reference, text, terminals) match {
+                    case Right(parsingSuccessInfo) =>
+                        Right(ParsingSuccessInfo[A](parsingSuccessInfo.remain, Some(parsingSuccessInfo.result)))
+                    case Left(_) =>
+                        Right(ParsingSuccessInfo[A](text, None))
+                }
             case AndParsingElement2(pe0, pe1, reducer, _) =>
                 for {
                     r0 <- _parse(pe0, text, terminals)
