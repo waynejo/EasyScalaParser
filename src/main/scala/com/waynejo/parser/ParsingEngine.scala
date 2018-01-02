@@ -3,7 +3,20 @@ package com.waynejo.parser
 import com.waynejo.parser.element._
 import com.waynejo.parser.types._
 
+import scala.annotation.tailrec
+
 object ParsingEngine {
+
+    @tailrec
+    private def repeat[A](parsingElement: ParsingElement[A], text: String, reducer: (A, A) => A, acc: A): Either[ParsingFailInfo, ParsingSuccessInfo[A]] = {
+        _parse(parsingElement, text, Nil) match {
+            case Right(parsingSuccessInfo) =>
+                val nextAcc = reducer(acc, parsingSuccessInfo.result)
+                repeat(parsingElement, parsingSuccessInfo.remain, reducer, nextAcc)
+            case Left(_) =>
+                Right(ParsingSuccessInfo[A](text, acc))
+        }
+    }
 
     private def _parse[A](parsingElement: ParsingElement[A], text: String, terminals: List[TerminalParsingElement]): Either[ParsingFailInfo, ParsingSuccessInfo[A]] = {
         parsingElement match {
@@ -22,6 +35,11 @@ object ParsingEngine {
                     case Left(_) =>
                         Right(ParsingSuccessInfo[A](text, None))
                 }
+            case RepeatParsingElement(pe0, reducer) =>
+                for {
+                    r0 <- _parse(pe0, text, terminals)
+                    r1 <- repeat(pe0, r0.remain, reducer, r0.result)
+                } yield ParsingSuccessInfo(r1.remain, r1.result)
             case AndParsingElement2(pe0, pe1, reducer, _) =>
                 for {
                     r0 <- _parse(pe0, text, terminals)
