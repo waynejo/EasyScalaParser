@@ -26,6 +26,15 @@ object ParsingEngine {
                 } else {
                     Left(ParsingFailInfo())
                 }
+            case RegexParsingElement(regex) =>
+                val matchResult = regex.findPrefixMatchOf(text)
+                matchResult match {
+                    case Some(result) =>
+                        val token = text.substring(0, result.end)
+                        Right(ParsingSuccessInfo(text.substring(token.length), token))
+                    case None =>
+                        Left(ParsingFailInfo())
+                }
             case ReferenceParsingElement(reference) =>
                 _parse(reference(), text, terminals)
             case OptionParsingElement(reference) =>

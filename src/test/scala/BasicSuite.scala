@@ -3,6 +3,8 @@ import com.waynejo.parser.ImplicitConversions._
 import com.waynejo.parser.types.{Type1, Type2}
 import org.scalatest.FunSuite
 
+import scala.util.matching.Regex
+
 class BasicSuite extends FunSuite {
     test("simple 'and' success") {
         case class ParsingResult(v0: String, v1: String)
@@ -99,5 +101,17 @@ class BasicSuite extends FunSuite {
         assert(parser.parse("abcdabcdef").contains(ParsingResult("abcdabcdef")))
         assert(parser.parse("abcdabcdabcdef").contains(ParsingResult("abcdabcdabcdef")))
         assert(parser.parse("abcdabef").isEmpty)
+    }
+
+    test("simple regex") {
+        case class ParsingResult(v0: String, v1: String)
+
+        val parser = Parser.and("[0-9]+".r, "cd") { case (v0, v1) =>
+            ParsingResult(v0, v1)
+        }
+        assert(parser.parse("0123cd").contains(ParsingResult("0123", "cd")))
+        assert(parser.parse("012cd").contains(ParsingResult("012", "cd")))
+        assert(parser.parse("0cd").contains(ParsingResult("0", "cd")))
+        assert(parser.parse("abcd").isEmpty)
     }
 }
