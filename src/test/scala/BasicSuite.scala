@@ -1,5 +1,6 @@
 import com.waynejo.parser.Parser
 import com.waynejo.parser.ImplicitConversions._
+import com.waynejo.parser.element.CustomParsingElement
 import com.waynejo.parser.types.{Type1, Type2}
 import org.scalatest.FunSuite
 
@@ -107,6 +108,33 @@ class BasicSuite extends FunSuite {
         case class ParsingResult(v0: String, v1: String)
 
         val parser = Parser.and("[0-9]+".r, "cd") { case (v0, v1) =>
+            ParsingResult(v0, v1)
+        }
+        assert(parser.parse("0123cd").contains(ParsingResult("0123", "cd")))
+        assert(parser.parse("012cd").contains(ParsingResult("012", "cd")))
+        assert(parser.parse("0cd").contains(ParsingResult("0", "cd")))
+        assert(parser.parse("abcd").isEmpty)
+    }
+
+    test("simple custom") {
+        case class ParsingResult(v0: String, v1: String)
+
+        val customParser = CustomParsingElement(s => {
+            def _parse(text: String, acc: String = ""): Option[String] = {
+                if (text.isEmpty || ('0' > text.head || '9' < text.head)) {
+                    if (acc.isEmpty) {
+                        None
+                    } else {
+                        Some(acc)
+                    }
+                } else {
+                    _parse(text.tail, acc + text.head)
+                }
+            }
+            _parse(s)
+        })
+
+        val parser = Parser.and(customParser, "cd") { case (v0, v1) =>
             ParsingResult(v0, v1)
         }
         assert(parser.parse("0123cd").contains(ParsingResult("0123", "cd")))

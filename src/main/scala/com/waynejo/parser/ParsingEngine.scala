@@ -35,6 +35,14 @@ object ParsingEngine {
                     case None =>
                         Left(ParsingFailInfo())
                 }
+            case CustomParsingElement(parser, _) =>
+                val matchResult = parser(text)
+                matchResult match {
+                    case Some(token) =>
+                        Right(ParsingSuccessInfo(text.substring(token.length), token))
+                    case None =>
+                        Left(ParsingFailInfo())
+                }
             case ReferenceParsingElement(reference) =>
                 _parse(reference(), text, terminals)
             case OptionParsingElement(reference) =>
