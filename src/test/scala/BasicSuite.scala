@@ -1,10 +1,8 @@
 import com.waynejo.parser.Parser
 import com.waynejo.parser.ImplicitConversions._
 import com.waynejo.parser.element.CustomParsingElement
-import com.waynejo.parser.types.{Type1, Type2}
+import com.waynejo.parser.types.{Type0, Type1}
 import org.scalatest.FunSuite
-
-import scala.util.matching.Regex
 
 class BasicSuite extends FunSuite {
     test("simple 'and' success") {
@@ -57,9 +55,9 @@ class BasicSuite extends FunSuite {
         case class ParsingResult(v0: String)
 
         val parser = Parser.or("ab", "cd") {
-            case Type1(v) =>
+            case Type0(v) =>
                 ParsingResult(v)
-            case Type2(v) =>
+            case Type1(v) =>
                 ParsingResult(v)
         }
 

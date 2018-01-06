@@ -1,7 +1,7 @@
 import com.waynejo.parser.ImplicitConversions._
 import com.waynejo.parser.Parser
 import com.waynejo.parser.element.ParsingElement
-import com.waynejo.parser.types.{Type1, Type2}
+import com.waynejo.parser.types.{Type0, Type1}
 import org.scalatest.FunSuite
 
 class ComplexSuite extends FunSuite {
@@ -17,9 +17,9 @@ class ComplexSuite extends FunSuite {
         }
 
         lazy val parser = Parser.or(rule0, rule1) {
-            case Type1(v) =>
+            case Type0(v) =>
                 ParsingResult(v.v)
-            case Type2(v) =>
+            case Type1(v) =>
                 ParsingResult(v.v)
         }
 
