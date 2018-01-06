@@ -4,7 +4,7 @@ import com.waynejo.parser.ParsingEngine
 import com.waynejo.parser.injection.{ParsingInjection, ParsingInjectionNothing}
 
 trait ParsingElement[A] {
-    def debugString: String
+    def name: String
 
     def parse(text: String, parsingInjection: ParsingInjection = ParsingInjectionNothing): Option[A] = {
         ParsingEngine.parse(this, text, parsingInjection)
