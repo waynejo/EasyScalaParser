@@ -8,7 +8,7 @@ class ComplexSuite extends FunSuite {
     test("Matching pairs") {
         case class ParsingResult(v: String)
 
-        val rule0: ParsingElement[ParsingResult] = Parser.and("a", "b") { case (v0, v1) =>
+        val rule0 = Parser.and("a", "b") { case (v0, v1) =>
             ParsingResult(v0 + v1)
         }
 
