@@ -1,3 +1,3 @@
 package com.waynejo.parser
 
-case class ParsingSuccessInfo[A](remain: String, result: A)
+case class ParsingSuccessInfo[A](nextIndex: Int, result: A)

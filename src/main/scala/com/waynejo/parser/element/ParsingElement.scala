@@ -1,12 +1,12 @@
 package com.waynejo.parser.element
 
 import com.waynejo.parser.ParsingEngine
-import com.waynejo.parser.injection.{ParsingInjection, ParsingInjectionNothing}
+import com.waynejo.parser.injection.{ParsingIgnore, ParsingIgnoreNothing}
 
 trait ParsingElement[A] {
     def name: String
 
-    def parse(text: String, parsingInjection: ParsingInjection = ParsingInjectionNothing): Option[A] = {
+    def parse(text: String, parsingInjection: ParsingIgnore = ParsingIgnoreNothing): Option[A] = {
         ParsingEngine.parse(this, text, parsingInjection)
     }
 

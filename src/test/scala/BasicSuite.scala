@@ -1,7 +1,7 @@
 import com.waynejo.parser.Parser
 import com.waynejo.parser.ImplicitConversions._
 import com.waynejo.parser.element.CustomParsingElement
-import com.waynejo.parser.injection.ParsingInjectionRemoveWhiteSpace
+import com.waynejo.parser.injection.ParsingIgnoreRemoveWhiteSpace
 import com.waynejo.parser.types.{Type0, Type1}
 import org.scalatest.FunSuite
 
@@ -148,6 +148,6 @@ class BasicSuite extends FunSuite {
         val parser = Parser.and("ab", "cd") { case (v0, v1) =>
             ParsingResult(v0, v1)
         }
-        assert(parser.parse("ab \n\t cd", ParsingInjectionRemoveWhiteSpace).contains(ParsingResult("ab", "cd")))
+        assert(parser.parse("ab \r\n\t cd", ParsingIgnoreRemoveWhiteSpace).contains(ParsingResult("ab", "cd")))
     }
 }
