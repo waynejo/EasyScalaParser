@@ -17,8 +17,9 @@ object ParsingEngine {
         parser(parsingElement)
     }
 
-    def parse[A](parsingElement: ParsingElement[A], text: String, parsingInjection: ParsingIgnore): Option[A] = {
-        val parsingContext = ParsingContext(text, 0, Nil, parsingInjection)
-        _parse(parsingElement, parsingContext).toOption.map(_.result)
+    def parse[A](parsingElement: ParsingElement[A], text: String, parsingInjection: ParsingIgnore): Either[String, A] = {
+        val parsingContext = ParsingContext(text, 0, Nil, parsingInjection, ParsingFailInfo())
+        val parseResult = _parse(parsingElement, parsingContext)
+        parseResult.left.map(ErrorMessageBuilder.build(text)).right.map(_.result)
     }
 }

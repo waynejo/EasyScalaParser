@@ -6,7 +6,7 @@ import com.waynejo.parser.injection.{ParsingIgnore, ParsingIgnoreNothing}
 trait ParsingElement[A] {
     def name: String
 
-    def parse(text: String, parsingInjection: ParsingIgnore = ParsingIgnoreNothing): Option[A] = {
+    def parse(text: String, parsingInjection: ParsingIgnore = ParsingIgnoreNothing): Either[String, A] = {
         ParsingEngine.parse(this, text, parsingInjection)
     }
 

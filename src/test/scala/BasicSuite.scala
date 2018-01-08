@@ -21,7 +21,7 @@ class BasicSuite extends FunSuite {
         val parser = Parser.and("ab", "cd") { case (v0, v1) =>
             ParsingResult(v0, v1)
         }
-        assert(parser.parse("abc").isEmpty)
+        assert(parser.parse("abc").isLeft)
     }
 
     test("stacked 'and' success") {
@@ -49,7 +49,7 @@ class BasicSuite extends FunSuite {
             ParsingResult(v0, v1.v1, v1.v2, v2)
         }
 
-        assert(parser2.parse("abcddfgh").isEmpty)
+        assert(parser2.parse("abcddfgh").isLeft)
     }
 
     test("simple 'or'") {
@@ -64,7 +64,7 @@ class BasicSuite extends FunSuite {
 
         assert(parser.parse("ab").contains(ParsingResult("ab")))
         assert(parser.parse("cd").contains(ParsingResult("cd")))
-        assert(parser.parse("ef").isEmpty)
+        assert(parser.parse("ef").isLeft)
     }
 
     test("simple 'option'") {
@@ -79,7 +79,7 @@ class BasicSuite extends FunSuite {
 
         assert(parser.parse("abcdef").contains(ParsingResult("abcdef")))
         assert(parser.parse("abef").contains(ParsingResult("abef")))
-        assert(parser.parse("ab").isEmpty)
+        assert(parser.parse("ab").isLeft)
     }
 
     test("simple 'repeat'") {
@@ -96,11 +96,11 @@ class BasicSuite extends FunSuite {
                 ParsingResult(v0.v0 + v1)
         }
 
-        assert(parser.parse("ef").isEmpty)
+        assert(parser.parse("ef").isLeft)
         assert(parser.parse("abcdef").contains(ParsingResult("abcdef")))
         assert(parser.parse("abcdabcdef").contains(ParsingResult("abcdabcdef")))
         assert(parser.parse("abcdabcdabcdef").contains(ParsingResult("abcdabcdabcdef")))
-        assert(parser.parse("abcdabef").isEmpty)
+        assert(parser.parse("abcdabef").isLeft)
     }
 
     test("simple regex") {
@@ -112,7 +112,7 @@ class BasicSuite extends FunSuite {
         assert(parser.parse("0123cd").contains(ParsingResult("0123", "cd")))
         assert(parser.parse("012cd").contains(ParsingResult("012", "cd")))
         assert(parser.parse("0cd").contains(ParsingResult("0", "cd")))
-        assert(parser.parse("abcd").isEmpty)
+        assert(parser.parse("abcd").isLeft)
     }
 
     test("simple custom") {
@@ -139,7 +139,7 @@ class BasicSuite extends FunSuite {
         assert(parser.parse("0123cd").contains(ParsingResult("0123", "cd")))
         assert(parser.parse("012cd").contains(ParsingResult("012", "cd")))
         assert(parser.parse("0cd").contains(ParsingResult("0", "cd")))
-        assert(parser.parse("abcd").isEmpty)
+        assert(parser.parse("abcd").isLeft)
     }
 
     test("ignore whitespace") {

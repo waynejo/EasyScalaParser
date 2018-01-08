@@ -26,6 +26,6 @@ class ComplexSuite extends FunSuite {
         assert(parser.parse("ab").contains(ParsingResult("ab")))
         assert(parser.parse("aabb").contains(ParsingResult("aabb")))
         assert(parser.parse("aaabbb").contains(ParsingResult("aaabbb")))
-        assert(parser.parse("aacbb").isEmpty)
+        assert(parser.parse("aacbb") == Left("[1:3] expected: b but cbb\n[1:3] expected: a but cbb\n[1:3] expected: a but cbb\n[1:2] expected: b but acbb"))
     }
 }
