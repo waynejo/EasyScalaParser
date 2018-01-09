@@ -1,3 +1,4 @@
+import cats.kernel.Semigroup
 import com.waynejo.parser.Parser
 import com.waynejo.parser.ImplicitConversions._
 import com.waynejo.parser.element.CustomParsingElement
@@ -88,10 +89,31 @@ class BasicSuite extends FunSuite {
         val parser = Parser.and(Parser.and("ab", "cd") {
             case (v0, v1) =>
                 ParsingResult(v0 + v1)
-        }.repeat {
+        }.repeat((v0, v1) => {
+            ParsingResult(v0.v0 + v1.v0)
+        }), "ef") {
             case (v0, v1) =>
-                ParsingResult(v0.v0 + v1.v0)
-        }, "ef") {
+                ParsingResult(v0.v0 + v1)
+        }
+
+        assert(parser.parse("ef").isLeft)
+        assert(parser.parse("abcdef").contains(ParsingResult("abcdef")))
+        assert(parser.parse("abcdabcdef").contains(ParsingResult("abcdabcdef")))
+        assert(parser.parse("abcdabcdabcdef").contains(ParsingResult("abcdabcdabcdef")))
+        assert(parser.parse("abcdabef").isLeft)
+    }
+
+    test("simple 'repeat' with semigroup") {
+        case class ParsingResult(v0: String)
+
+        implicit val evidence: cats.Semigroup[ParsingResult] = (v0, v1) => {
+            ParsingResult(v0.v0 + v1.v0)
+        }
+
+        val parser = Parser.and(Parser.and("ab", "cd") {
+            case (v0, v1) =>
+                ParsingResult(v0 + v1)
+        }.repeat, "ef") {
             case (v0, v1) =>
                 ParsingResult(v0.v0 + v1)
         }

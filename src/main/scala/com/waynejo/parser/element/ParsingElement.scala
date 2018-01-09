@@ -14,7 +14,7 @@ trait ParsingElement[A] {
         OptionParsingElement[A](this)
     }
 
-    def repeat(reducer: (A, A) => A): ParsingElement[A] = {
-        RepeatParsingElement[A](this, reducer)
+    def repeat(implicit evidence: cats.Semigroup[A]): ParsingElement[A] = {
+        RepeatParsingElement[A](this, evidence.combine)
     }
 }
