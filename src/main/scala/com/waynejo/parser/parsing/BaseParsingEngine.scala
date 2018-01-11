@@ -8,13 +8,17 @@ import scala.annotation.tailrec
 object BaseParsingEngine {
 
     @tailrec
-    private def repeat[A](parsingElement: ParsingElement[A], parsingContext: ParsingContext, reducer: (A, A) => A, acc: A): Either[ParsingFailInfo, ParsingSuccessInfo[A]] = {
-        ParsingEngine._parse(parsingElement, parsingContext.copy(terminals = Nil)) match {
-            case Right(parsingSuccessInfo) =>
-                val nextAcc = reducer(acc, parsingSuccessInfo.result)
-                repeat(parsingElement, parsingSuccessInfo.nextContext, reducer, nextAcc)
-            case Left(_) =>
-                Right(ParsingSuccessInfo[A](parsingContext, acc))
+    private def repeat[A](parsingElement: ParsingElement[A], parsingContext: ParsingContext, reducer: (A, A) => A, n: Int, acc: A): Either[ParsingFailInfo, ParsingSuccessInfo[A]] = {
+        if (0 >= n) {
+            Right(ParsingSuccessInfo[A](parsingContext, acc))
+        } else {
+            ParsingEngine._parse(parsingElement, parsingContext.copy(terminals = Nil)) match {
+                case Right(parsingSuccessInfo) =>
+                    val nextAcc = reducer(acc, parsingSuccessInfo.result)
+                    repeat(parsingElement, parsingSuccessInfo.nextContext, reducer, n - 1, nextAcc)
+                case Left(_) =>
+                    Right(ParsingSuccessInfo[A](parsingContext, acc))
+            }
         }
     }
 
@@ -56,7 +60,17 @@ object BaseParsingEngine {
         case RepeatParsingElement(pe0, reducer) =>
             for {
                 r0 <- ParsingEngine._parse(pe0, parsingContext)
-                r1 <- repeat(pe0, r0.nextContext, reducer, r0.result)
+                r1 <- repeat(pe0, r0.nextContext, reducer, Int.MaxValue, r0.result)
             } yield ParsingSuccessInfo(r1.nextContext, r1.result)
+
+        case TimesParsingElement(pe0, n, reducer) =>
+            if (n > 0) {
+                for {
+                    r0 <- ParsingEngine._parse(pe0, parsingContext)
+                    r1 <- repeat(pe0, r0.nextContext, reducer, n - 1, r0.result)
+                } yield ParsingSuccessInfo(r1.nextContext, r1.result)
+            } else {
+                Left(ParsingFailInfo(parsingContext, pe0))
+            }
     }
 }

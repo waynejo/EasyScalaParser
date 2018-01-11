@@ -125,6 +125,26 @@ class BasicSuite extends FunSuite {
         assert(parser.parse("abcdabef").isLeft)
     }
 
+    test("simple 'times'") {
+        case class ParsingResult(v0: String)
+
+        val parser = Parser.and(Parser.and("ab", "cd") {
+            case (v0, v1) =>
+                ParsingResult(v0 + v1)
+        }.times(2)((v0, v1) => {
+            ParsingResult(v0.v0 + v1.v0)
+        }), "ef") {
+            case (v0, v1) =>
+                ParsingResult(v0.v0 + v1)
+        }
+
+        assert(parser.parse("ef").isLeft)
+        assert(parser.parse("abcdef").contains(ParsingResult("abcdef")))
+        assert(parser.parse("abcdabcdef").contains(ParsingResult("abcdabcdef")))
+        assert(parser.parse("abcdabcdabcdef").isLeft)
+        assert(parser.parse("abcdabef").isLeft)
+    }
+
     test("simple regex") {
         case class ParsingResult(v0: String, v1: String)
 

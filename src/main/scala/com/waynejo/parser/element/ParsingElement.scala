@@ -17,4 +17,8 @@ trait ParsingElement[A] {
     def repeat(implicit evidence: cats.Semigroup[A]): ParsingElement[A] = {
         RepeatParsingElement[A](this, evidence.combine)
     }
+
+    def times(n: Int)(implicit evidence: cats.Semigroup[A]): ParsingElement[A] = {
+        TimesParsingElement[A](this, n, evidence.combine)
+    }
 }
