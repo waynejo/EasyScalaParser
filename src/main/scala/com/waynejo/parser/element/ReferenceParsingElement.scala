@@ -1,7 +1,4 @@
 package com.waynejo.parser.element
 
-case class ReferenceParsingElement[A](reference: () => ParsingElement[A]) extends ParsingElement[A] {
-    def name: String = {
-        ""
-    }
+case class ReferenceParsingElement[A](reference: () => ParsingElement[A], name: String = "") extends ParsingElement[A] {
 }
