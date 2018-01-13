@@ -1,3 +1,5 @@
 package com.waynejo.parser
 
-case class ParsingFailReason(index: Int, expected: String)
+import com.waynejo.parser.element.ParsingElement
+
+case class ParsingFailReason(index: Int, expected: String, parserStack: List[ParsingElement[_]])

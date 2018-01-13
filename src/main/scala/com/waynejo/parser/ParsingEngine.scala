@@ -6,20 +6,21 @@ import com.waynejo.parser.parsing.{AndParsingEngine, BaseParsingEngine, OrParsin
 
 object ParsingEngine {
 
-    def _parse[A](parsingElement: ParsingElement[A], parsingContext: ParsingContext): Either[ParsingFailInfo, ParsingSuccessInfo[A]] = {
+    def _parse[A](parsingElement: ParsingElement[A], parsingContext: ParsingContext, parserStack: List[ParsingElement[_]]): Either[ParsingFailInfo, ParsingSuccessInfo[A]] = {
         val ignoredIndex = parsingContext.parsingInjection.ignore(parsingContext.text, parsingContext.textIndex)
-        val ignoredContext = parsingContext.copy(textIndex = ignoredIndex)
+        val nextContext = parsingContext.copy(textIndex = ignoredIndex)
+        val nextParsingStack = parsingElement :: parserStack
 
-        val parser = BaseParsingEngine.parse[A](ignoredContext)
-            .orElse(AndParsingEngine.parse[A](ignoredContext))
-            .orElse(OrParsingEngine.parse[A](ignoredContext))
+        val parser = BaseParsingEngine.parse[A](nextContext, nextParsingStack)
+            .orElse(AndParsingEngine.parse[A](nextContext, nextParsingStack))
+            .orElse(OrParsingEngine.parse[A](nextContext, nextParsingStack))
 
         parser(parsingElement)
     }
 
     def parse[A](parsingElement: ParsingElement[A], text: String, parsingInjection: ParsingIgnore): Either[String, A] = {
         val parsingContext = ParsingContext(text, 0, Nil, parsingInjection, ParsingFailInfo())
-        val parseResult = _parse(parsingElement, parsingContext)
+        val parseResult = _parse(parsingElement, parsingContext, Nil)
         parseResult.left.map(ErrorMessageBuilder.build(text)).right.map(_.result)
     }
 }

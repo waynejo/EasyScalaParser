@@ -175,6 +175,6 @@ object Parser {
     }
 
     def apply(name: String): Parser = {
-        Parser(name)
+        new Parser(name)
     }
 }

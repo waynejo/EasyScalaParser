@@ -7,7 +7,7 @@ object ErrorMessageBuilder {
         parsingFailInfo.failReasons.map(x => {
             val line = lineNumber(text, x.index)
             val column = columnNumber(text, x.index)
-            val expected = x.expected
+            val expected = (x.expected :: x.parserStack.map(_.name).filter(_.nonEmpty)).reverse.mkString(" > ")
             val actual = actualText(text, x.index)
 
             s"[$line:$column] expected: $expected but $actual"
