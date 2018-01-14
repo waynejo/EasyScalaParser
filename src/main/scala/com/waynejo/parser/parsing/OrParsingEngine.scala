@@ -11,7 +11,6 @@ object OrParsingEngine {
                     ParsingEngine._parse(pe0, parsingContext, parserStack).map(x => ParsingSuccessInfo(x.nextContext, reducer(x.result)))
                         .left.flatMap { case (failInfo: ParsingFailInfo) =>
                         OrParsingEngine.parse(parsingContext.onFail(failInfo), parserStack)(nextOrParsingElement)
-                            //.map(x => ParsingSuccessInfo(x.nextContext, nextOrParsingElement.reducer(x.result)))
                     }
                 case None =>
                     ParsingEngine._parse(pe0, parsingContext, parserStack).map(x => ParsingSuccessInfo(x.nextContext, reducer(x.result)))

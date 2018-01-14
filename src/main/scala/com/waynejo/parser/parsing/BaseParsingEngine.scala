@@ -57,13 +57,13 @@ object BaseParsingEngine {
                 case Left(_) =>
                     Right(ParsingSuccessInfo[A](parsingContext, None))
             }
-        case RepeatParsingElement(pe0, reducer:((A, A) => A)) =>
+        case RepeatParsingElement(pe0, reducer: ((A, A) => A)) =>
             for {
                 r0 <- ParsingEngine._parse(pe0, parsingContext, parserStack)
                 r1 <- repeat[A](pe0, r0.nextContext, parserStack, reducer, Int.MaxValue, r0.result)
             } yield ParsingSuccessInfo(r1.nextContext, r1.result)
 
-        case TimesParsingElement(pe0, n, reducer:((A, A) => A)) =>
+        case TimesParsingElement(pe0, n, reducer: ((A, A) => A)) =>
             if (n > 0) {
                 for {
                     r0 <- ParsingEngine._parse(pe0, parsingContext, parserStack)

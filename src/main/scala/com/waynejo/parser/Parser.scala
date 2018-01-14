@@ -68,7 +68,7 @@ case class Parser(name: String) {
         OrParsingElementBuilder[A, B](v0, reducer, None, name)
     }
 
-    def refer[A](v: () => ParsingElement[A]) : ParsingElement[A] = {
+    def refer[A](v: () => ParsingElement[A]): ParsingElement[A] = {
         ReferenceParsingElement[A](v, name)
     }
 }
@@ -138,7 +138,7 @@ object Parser {
         OrParsingElementBuilder[A, B](v0, reducer, None, "")
     }
 
-    def refer[A](v: () => ParsingElement[A]) : ParsingElement[A] = {
+    def refer[A](v: () => ParsingElement[A]): ParsingElement[A] = {
         ReferenceParsingElement[A](v)
     }
 
