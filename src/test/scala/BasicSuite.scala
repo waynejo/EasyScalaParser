@@ -3,7 +3,6 @@ import com.waynejo.parser.Parser
 import com.waynejo.parser.ImplicitConversions._
 import com.waynejo.parser.element.CustomParsingElement
 import com.waynejo.parser.injection.ParsingIgnoreRemoveWhiteSpace
-import com.waynejo.parser.types.{Type0, Type1}
 import org.scalatest.FunSuite
 
 class BasicSuite extends FunSuite {
@@ -56,12 +55,9 @@ class BasicSuite extends FunSuite {
     test("simple 'or'") {
         case class ParsingResult(v0: String)
 
-        val parser = Parser.or("ab", "cd") {
-            case Type0(v) =>
-                ParsingResult(v)
-            case Type1(v) =>
-                ParsingResult(v)
-        }
+        val parser = Parser
+            .or("ab")(ParsingResult)
+            .or("cd")(ParsingResult)
 
         assert(parser.parse("ab").contains(ParsingResult("ab")))
         assert(parser.parse("cd").contains(ParsingResult("cd")))
