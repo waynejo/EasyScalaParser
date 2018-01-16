@@ -54,8 +54,8 @@ object BaseParsingEngine {
             ParsingEngine._parse(reference, parsingContext, parserStack) match {
                 case Right(parsingSuccessInfo) =>
                     Right(ParsingSuccessInfo[A](parsingSuccessInfo.nextContext, Some(parsingSuccessInfo.result)))
-                case Left(_) =>
-                    Right(ParsingSuccessInfo[A](parsingContext, None))
+                case Left(failInfo) =>
+                    Right(ParsingSuccessInfo[A](parsingContext.onFail(failInfo), None))
             }
         case RepeatParsingElement(pe0, reducer: ((A, A) => A)) =>
             for {
