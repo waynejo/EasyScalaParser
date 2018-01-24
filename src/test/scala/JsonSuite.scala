@@ -3,6 +3,7 @@ import com.waynejo.parser.Parser
 import com.waynejo.parser.element.ParsingElement
 import org.scalatest.FunSuite
 import cats.implicits._
+import com.waynejo.parser.element.builder.OrParsingElementBuilder
 import com.waynejo.parser.injection.ParsingIgnoreRemoveWhiteSpace
 
 class JsonSuite extends FunSuite {
@@ -18,18 +19,18 @@ class JsonSuite extends FunSuite {
     def jsonString = Parser("JsonString").and("\"[^\"]*\"".r)(x => JsonString(x))
     def jsonNumber = Parser("JsonNumber").and("([0-9]+\\.[0-9]*)|([0-9]*\\.[0-9]+)|([0-9]+)".r)(x => JsonNumber(x.toDouble))
     def jsonBoolean = Parser("JsonBoolean").or("true")(_ => JsonBoolean(true)).or("false")(_ => JsonBoolean(false))
-    def jsonValue: ParsingElement[JsonElement] = Parser.or[JsonString, JsonElement](jsonString)(x => x)
-        .or(jsonNumber)(x => x)
-        .or(jsonBoolean)(x => x)
-        .or(Parser.refer(() => jsonObject))(x => x)
-        .or(Parser.refer(() => jsonArray))(x => x)
+    def jsonValue: ParsingElement[JsonElement] = Parser.or[JsonElement](jsonString)(x => x)
+            .or(jsonNumber)(x => x)
+            .or(jsonBoolean)(x => x)
+            .or(Parser.refer(() => jsonObject))(x => x)
+            .or(Parser.refer(() => jsonArray))(x => x)
 
     def jsonObjectBody = Parser.and(jsonKey, ":", jsonValue)(x => (x._1, x._3))
     def jsonObjectBodyRecursive = Parser.and(jsonObjectBody, Parser.and(",", jsonObjectBody)(x => x._2 :: Nil).repeat.option)(x => x._1 :: x._2.getOrElse(Nil))
     def jsonObject = Parser("JsonObject").and("{", jsonObjectBodyRecursive.option, "}")(x => JsonObject(x._2.getOrElse(Nil).toMap))
     def jsonArrayBodyRecursive = Parser.and(jsonValue, Parser.and(",", jsonValue)(x => x._2 :: Nil).repeat.option)(x => x._1 :: x._2.getOrElse(Nil))
     def jsonArray = Parser("JsonArray").and("[", jsonArrayBodyRecursive.option, "]")(x => JsonArray(x._2.getOrElse(Nil).toArray))
-    def jsonParser = Parser("Json").or[JsonObject, JsonElement](jsonObject)(x => x).or(jsonArray)(x => x)
+    def jsonParser = Parser("Json").or[JsonElement](jsonObject)(x => x).or(jsonArray)(x => x)
 
     test("simple json parser") {
         val jsonText = """{

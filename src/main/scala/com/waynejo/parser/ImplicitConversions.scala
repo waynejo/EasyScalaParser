@@ -14,7 +14,7 @@ object ImplicitConversions {
         RegexParsingElement(regex)
     }
 
-    implicit def OrParsingElementBuilder2OrParsingElement[_, B](builder: OrParsingElementBuilder[_, B]): ParsingElement[B] = {
+    implicit def OrParsingElementBuilder2OrParsingElement[A](builder: OrParsingElementBuilder[A]): ParsingElement[A] = {
         builder.build()
     }
 }

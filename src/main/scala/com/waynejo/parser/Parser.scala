@@ -1,7 +1,7 @@
 package com.waynejo.parser
 
 import com.waynejo.parser.element._
-import com.waynejo.parser.element.builder.OrParsingElementBuilder
+import com.waynejo.parser.element.builder.{OrParsingElementBuilder, OrParsingElementBuilderHead}
 
 case class Parser(name: String) {
     def and[A, B](v0: ParsingElement[A])(reducer: ((A)) => B): ParsingElement[B] = {
@@ -64,8 +64,8 @@ case class Parser(name: String) {
         AndParsingElement15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P](v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, reducer, name)
     }
 
-    def or[A, B](v0: ParsingElement[A])(reducer: A => B): OrParsingElementBuilder[A, B] = {
-        OrParsingElementBuilder[A, B](v0, reducer, None, name)
+    def or[A]: OrParsingElementBuilderHead[A] = {
+        OrParsingElementBuilderHead[A](name)
     }
 
     def refer[A](v: () => ParsingElement[A]): ParsingElement[A] = {
@@ -134,8 +134,8 @@ object Parser {
         AndParsingElement15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P](v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, reducer)
     }
 
-    def or[A, B](v0: ParsingElement[A])(reducer: A => B): OrParsingElementBuilder[A, B] = {
-        OrParsingElementBuilder[A, B](v0, reducer, None, "")
+    def or[A]: OrParsingElementBuilderHead[A] = {
+        OrParsingElementBuilderHead[A]("")
     }
 
     def refer[A](v: () => ParsingElement[A]): ParsingElement[A] = {
