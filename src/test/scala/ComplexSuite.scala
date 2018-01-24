@@ -22,6 +22,6 @@ class ComplexSuite extends FunSuite {
         assert(parser.parse("ab").contains(ParsingResult("ab")))
         assert(parser.parse("aabb").contains(ParsingResult("aabb")))
         assert(parser.parse("aaabbb").contains(ParsingResult("aaabbb")))
-        assert(parser.parse("aacbb") == Left("[1:3] expected: group3 > group2 > group3 > group1 > b > b but cbb\n[1:3] expected: group3 > group2 > group3 > group2 > group3 > group1 > a > a but cbb\n[1:3] expected: group3 > group2 > group3 > group2 > group3 > group2 > a > a but cbb\n[1:2] expected: group3 > group1 > b > b but acbb"))
+        assert(parser.parse("aacbb") == Left("[1:3] expected: group3 > group2 > group3 > group1 > b but cbb\n[1:3] expected: group3 > group2 > group3 > group2 > group3 > group1 > a but cbb\n[1:3] expected: group3 > group2 > group3 > group2 > group3 > group2 > a but cbb\n[1:2] expected: group3 > group1 > b but acbb"))
     }
 }
