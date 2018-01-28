@@ -1,16 +1,15 @@
+import cats.implicits._
 import com.waynejo.parser.ImplicitConversions._
 import com.waynejo.parser.Parser
 import com.waynejo.parser.element.ParsingElement
-import org.scalatest.FunSuite
-import cats.implicits._
-import com.waynejo.parser.element.builder.OrParsingElementBuilder
 import com.waynejo.parser.injection.ParsingIgnoreRemoveWhiteSpace
+import org.scalatest.FunSuite
 
 class JsonSuite extends FunSuite {
 
     trait JsonElement
     case class JsonObject(children: Map[String, JsonElement]) extends JsonElement
-    case class JsonArray(values: Array[JsonElement]) extends JsonElement
+    case class JsonArray(values: Seq[JsonElement]) extends JsonElement
     case class JsonString(value: String) extends JsonElement
     case class JsonNumber(value: Double) extends JsonElement
     case class JsonBoolean(value: Boolean) extends JsonElement
@@ -29,7 +28,7 @@ class JsonSuite extends FunSuite {
     def jsonObjectBodyRecursive = Parser.and(jsonObjectBody, Parser.and(",", jsonObjectBody)(x => x._2 :: Nil).repeat.option)(x => x._1 :: x._2.getOrElse(Nil))
     def jsonObject = Parser("JsonObject").and("{", jsonObjectBodyRecursive.option, "}")(x => JsonObject(x._2.getOrElse(Nil).toMap))
     def jsonArrayBodyRecursive = Parser.and(jsonValue, Parser.and(",", jsonValue)(x => x._2 :: Nil).repeat.option)(x => x._1 :: x._2.getOrElse(Nil))
-    def jsonArray = Parser("JsonArray").and("[", jsonArrayBodyRecursive.option, "]")(x => JsonArray(x._2.getOrElse(Nil).toArray))
+    def jsonArray = Parser("JsonArray").and("[", jsonArrayBodyRecursive.option, "]")(x => JsonArray(x._2.getOrElse(Nil)))
     def jsonParser = Parser("Json").or[JsonElement](jsonObject)(x => x).or(jsonArray)(x => x)
 
     test("simple json parser") {
@@ -60,36 +59,12 @@ class JsonSuite extends FunSuite {
           |		]
           |}
         """.stripMargin
+
+        val answer = "JsonObject(Map(\"batters\" -> JsonObject(Map(\"batter\" -> JsonArray(List(JsonObject(Map(\"id\" -> JsonNumber(1001.0), \"type\" -> JsonString(\"Regular\"))), JsonObject(Map(\"id\" -> JsonNumber(1002.0), \"type\" -> JsonString(\"Chocolate\"))), JsonObject(Map(\"id\" -> JsonNumber(1003.0), \"type\" -> JsonString(\"Blueberry\"))), JsonObject(Map(\"id\" -> JsonNumber(1004.0), \"type\" -> JsonString(\"Devil's Food\"))))))), \"type\" -> JsonString(\"donut\"), \"ppu\" -> JsonNumber(0.55), \"id\" -> JsonString(\"0001\"), \"name\" -> JsonString(\"Cake\"), \"topping\" -> JsonArray(List(JsonObject(Map(\"id\" -> JsonNumber(5001.0), \"type\" -> JsonString(\"None\"))), JsonObject(Map(\"id\" -> JsonNumber(5002.0), \"type\" -> JsonString(\"Glazed\"))), JsonObject(Map(\"id\" -> JsonNumber(5005.0), \"type\" -> JsonString(\"Sugar\"))), JsonObject(Map(\"id\" -> JsonNumber(5007.0), \"type\" -> JsonString(\"Powdered Sugar\"))), JsonObject(Map(\"id\" -> JsonNumber(5006.0), \"type\" -> JsonString(\"Chocolate with Sprinkles\"))), JsonObject(Map(\"id\" -> JsonNumber(5003.0), \"type\" -> JsonString(\"Chocolate\"))), JsonObject(Map(\"id\" -> JsonNumber(5004.0), \"type\" -> JsonString(\"Maple\")))))))"
+
         assert(
-            jsonParser.parse(jsonText, ParsingIgnoreRemoveWhiteSpace) ==
-                Right(
-                    JsonObject(
-                        Map("batters" -> JsonObject(
-                            Map("batter" -> JsonArray(
-                                Array(
-                                    JsonObject(Map("id" -> JsonNumber(1001), "type" -> JsonString("Regular"))),
-                                    JsonObject(Map("id" -> JsonNumber(1002), "type" -> JsonString("Chocolate"))),
-                                    JsonObject(Map("id" -> JsonNumber(1003), "type" -> JsonString("Blueberry"))),
-                                    JsonObject(Map("id" -> JsonNumber(1004), "type" -> JsonString("Devil's Food")))
-                                )
-                            ))), "type" -> JsonString("donut")
-                            , "ppu" -> JsonNumber(0.55)
-                            , "id" -> JsonString("0001")
-                            , "name" -> JsonString("Cake")
-                            , "topping" -> JsonArray(Array(
-                                JsonObject(Map("id" -> JsonNumber(5001), "type" -> JsonString("None"))),
-                                JsonObject(Map("id" -> JsonNumber(5002), "type" -> JsonString("Glazed"))),
-                                JsonObject(Map("id" -> JsonNumber(5005), "type" -> JsonString("Sugar"))),
-                                JsonObject(Map("id" -> JsonNumber(5007), "type" -> JsonString("Powdered Sugar"))),
-                                JsonObject(Map("id" -> JsonNumber(5006), "type" -> JsonString("Chocolate with Sprinkles"))),
-                                JsonObject(Map("id" -> JsonNumber(5003), "type" -> JsonString("Chocolate"))),
-                                JsonObject(Map("id" -> JsonNumber(5004), "type" -> JsonString("Maple"))
-                            )
-                            )
-                        )
-                    )
-                )
-            )
+            jsonParser.parse(jsonText, ParsingIgnoreRemoveWhiteSpace).map(_.toString) == Right(answer)
         )
+
     }
 }
