@@ -19,7 +19,12 @@ object ErrorMessageBuilder {
     }
 
     def columnNumber(text: String, index: Int): Int = {
-        text.substring(0, index).split('\n').last.length + 1
+        val splitText = text.substring(0, index).split('\n')
+        if (splitText.isEmpty) {
+            0
+        } else {
+            splitText.last.length + 1
+        }
     }
 
     def actualText(text: String, index: Int): String = {
