@@ -1,7 +1,7 @@
 package com.waynejo.parser
 
 object ErrorMessageBuilder {
-    val MAX_ACTUAL_TEXT_LENGTH = 10
+    val MAX_ACTUAL_TEXT_LENGTH = 20
 
     def build(text: String)(parsingFailInfo: ParsingFailInfo): String = {
         parsingFailInfo.failReasons.map(x => {
@@ -23,10 +23,11 @@ object ErrorMessageBuilder {
     }
 
     def actualText(text: String, index: Int): String = {
-        if (text.length > index + MAX_ACTUAL_TEXT_LENGTH) {
+        val result = if (text.length > index + MAX_ACTUAL_TEXT_LENGTH) {
             text.substring(index, index + MAX_ACTUAL_TEXT_LENGTH) + "..."
         } else {
             text.substring(index)
         }
+        result.replace("\n", "\\n")
     }
 }
