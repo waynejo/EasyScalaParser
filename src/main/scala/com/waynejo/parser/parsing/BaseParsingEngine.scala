@@ -16,8 +16,8 @@ object BaseParsingEngine {
                 case Right(parsingSuccessInfo) =>
                     val nextAcc = reducer(acc, parsingSuccessInfo.result)
                     repeat(parsingElement, parsingSuccessInfo.nextContext, parserStack, reducer, n - 1, nextAcc)
-                case Left(_) =>
-                    Right(ParsingSuccessInfo[A](parsingContext, acc))
+                case Left(failInfo: ParsingFailInfo) =>
+                    Right(ParsingSuccessInfo[A](parsingContext.onFail(failInfo), acc))
             }
         }
     }
