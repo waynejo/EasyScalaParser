@@ -1,8 +1,8 @@
 import cats.implicits._
-import com.waynejo.parser.ImplicitConversions._
-import com.waynejo.parser.Parser
-import com.waynejo.parser.element.ParsingElement
-import com.waynejo.parser.injection.ParsingIgnoreRemoveWhiteSpace
+import com.waynejo.easyscalaparser.ImplicitConversions._
+import com.waynejo.easyscalaparser.Parser
+import com.waynejo.easyscalaparser.element.ParsingElement
+import com.waynejo.easyscalaparser.injection.ParsingIgnoreRemoveWhiteSpace
 import org.scalatest.FunSuite
 
 class JsonSuite extends FunSuite {

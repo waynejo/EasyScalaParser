@@ -1,6 +1,6 @@
-import com.waynejo.parser.ImplicitConversions._
-import com.waynejo.parser.Parser
-import com.waynejo.parser.element.ParsingElement
+import com.waynejo.easyscalaparser.ImplicitConversions._
+import com.waynejo.easyscalaparser.Parser
+import com.waynejo.easyscalaparser.element.ParsingElement
 import org.scalatest.FunSuite
 
 class ComplexSuite extends FunSuite {
