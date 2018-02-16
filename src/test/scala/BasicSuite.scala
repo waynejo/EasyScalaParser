@@ -1,4 +1,3 @@
-import cats.kernel.Semigroup
 import com.waynejo.parser.Parser
 import com.waynejo.parser.ImplicitConversions._
 import com.waynejo.parser.element.CustomParsingElement
