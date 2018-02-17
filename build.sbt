@@ -1,5 +1,5 @@
 
-name := "EasyScalaParser"
+name := "easyscalaparser"
 
 version := "0.1"
 
