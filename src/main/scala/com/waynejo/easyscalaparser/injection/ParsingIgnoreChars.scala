@@ -2,7 +2,7 @@ package com.waynejo.easyscalaparser.injection
 
 import scala.annotation.tailrec
 
-class ParsingIgnoreRemoveChars(ignoreChars: String) extends ParsingIgnore {
+class ParsingIgnoreChars(ignoreChars: String) extends ParsingIgnore {
 
     @tailrec
     final def ignore(s: String, index: Int): Int = {

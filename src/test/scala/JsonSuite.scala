@@ -2,7 +2,7 @@ import cats.implicits._
 import com.waynejo.easyscalaparser.ImplicitConversions._
 import com.waynejo.easyscalaparser.Parser
 import com.waynejo.easyscalaparser.element.ParsingElement
-import com.waynejo.easyscalaparser.injection.ParsingIgnoreRemoveWhiteSpace
+import com.waynejo.easyscalaparser.injection.ParsingIgnoreWhiteSpace
 import org.scalatest.FunSuite
 
 class JsonSuite extends FunSuite {
@@ -63,7 +63,7 @@ class JsonSuite extends FunSuite {
         val answer = "JsonObject(Map(\"batters\" -> JsonObject(Map(\"batter\" -> JsonArray(List(JsonObject(Map(\"id\" -> JsonNumber(1001.0), \"type\" -> JsonString(\"Regular\"))), JsonObject(Map(\"id\" -> JsonNumber(1002.0), \"type\" -> JsonString(\"Chocolate\"))), JsonObject(Map(\"id\" -> JsonNumber(1003.0), \"type\" -> JsonString(\"Blueberry\"))), JsonObject(Map(\"id\" -> JsonNumber(1004.0), \"type\" -> JsonString(\"Devil's Food\"))))))), \"type\" -> JsonString(\"donut\"), \"ppu\" -> JsonNumber(0.55), \"id\" -> JsonString(\"0001\"), \"name\" -> JsonString(\"Cake\"), \"topping\" -> JsonArray(List(JsonObject(Map(\"id\" -> JsonNumber(5001.0), \"type\" -> JsonString(\"None\"))), JsonObject(Map(\"id\" -> JsonNumber(5002.0), \"type\" -> JsonString(\"Glazed\"))), JsonObject(Map(\"id\" -> JsonNumber(5005.0), \"type\" -> JsonString(\"Sugar\"))), JsonObject(Map(\"id\" -> JsonNumber(5007.0), \"type\" -> JsonString(\"Powdered Sugar\"))), JsonObject(Map(\"id\" -> JsonNumber(5006.0), \"type\" -> JsonString(\"Chocolate with Sprinkles\"))), JsonObject(Map(\"id\" -> JsonNumber(5003.0), \"type\" -> JsonString(\"Chocolate\"))), JsonObject(Map(\"id\" -> JsonNumber(5004.0), \"type\" -> JsonString(\"Maple\")))))))"
 
         assert(
-            jsonParser.parse(jsonText, ParsingIgnoreRemoveWhiteSpace).map(_.toString) == Right(answer)
+            jsonParser.parse(jsonText, ParsingIgnoreWhiteSpace).map(_.toString) == Right(answer)
         )
 
     }
