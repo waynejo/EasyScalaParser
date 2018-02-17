@@ -8,16 +8,20 @@ import scala.annotation.tailrec
 object BaseParsingEngine {
 
     @tailrec
-    private def repeat[A](parsingElement: ParsingElement[A], parsingContext: ParsingContext, parserStack: List[ParsingElement[_]], reducer: (A, A) => A, n: Int, acc: A): Either[ParsingFailInfo, ParsingSuccessInfo[A]] = {
-        if (0 >= n) {
+    private def repeat[A](parsingElement: ParsingElement[A], parsingContext: ParsingContext, parserStack: List[ParsingElement[_]], reducer: (A, A) => A, lower: Int, upper: Int, acc: A): Either[ParsingFailInfo, ParsingSuccessInfo[A]] = {
+        if (0 >= upper) {
             Right(ParsingSuccessInfo[A](parsingContext, acc))
         } else {
             ParsingEngine._parse(parsingElement, parsingContext.copy(terminals = Nil), parserStack) match {
                 case Right(parsingSuccessInfo) =>
                     val nextAcc = reducer(acc, parsingSuccessInfo.result)
-                    repeat(parsingElement, parsingSuccessInfo.nextContext, parserStack, reducer, n - 1, nextAcc)
+                    repeat(parsingElement, parsingSuccessInfo.nextContext, parserStack, reducer, lower - 1, upper - 1, nextAcc)
                 case Left(failInfo: ParsingFailInfo) =>
-                    Right(ParsingSuccessInfo[A](parsingContext.onFail(failInfo), acc))
+                    if (lower > 0) {
+                        Left(failInfo)
+                    } else {
+                        Right(ParsingSuccessInfo[A](parsingContext.onFail(failInfo), acc))
+                    }
             }
         }
     }
@@ -60,14 +64,14 @@ object BaseParsingEngine {
         case RepeatParsingElement(pe0, reducer: ((A, A) => A)) =>
             for {
                 r0 <- ParsingEngine._parse(pe0, parsingContext, parserStack)
-                r1 <- repeat[A](pe0, r0.nextContext, parserStack, reducer, Int.MaxValue, r0.result)
+                r1 <- repeat[A](pe0, r0.nextContext, parserStack, reducer, 0, Int.MaxValue, r0.result)
             } yield ParsingSuccessInfo(r1.nextContext, r1.result)
 
-        case TimesParsingElement(pe0, n, reducer: ((A, A) => A)) =>
-            if (n > 0) {
+        case TimesParsingElement(pe0, lower, upper, reducer: ((A, A) => A)) =>
+            if (lower > 0 && upper > 0) {
                 for {
                     r0 <- ParsingEngine._parse(pe0, parsingContext, parserStack)
-                    r1 <- repeat[A](pe0, r0.nextContext, parserStack, reducer, n - 1, r0.result)
+                    r1 <- repeat[A](pe0, r0.nextContext, parserStack, reducer, lower - 1, upper - 1, r0.result)
                 } yield ParsingSuccessInfo(r1.nextContext, r1.result)
             } else {
                 Left(ParsingFailInfo(parsingContext, pe0, parserStack))

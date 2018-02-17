@@ -19,6 +19,10 @@ trait ParsingElement[A] {
     }
 
     def times(n: Int)(implicit evidence: cats.Semigroup[A]): ParsingElement[A] = {
-        TimesParsingElement[A](this, n, evidence.combine)
+        TimesParsingElement[A](this, n, n, evidence.combine)
+    }
+
+    def times(lower: Int, upper: Int)(implicit evidence: cats.Semigroup[A]): ParsingElement[A] = {
+        TimesParsingElement[A](this, lower, upper, evidence.combine)
     }
 }
