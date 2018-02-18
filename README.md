@@ -4,6 +4,18 @@ EasyScalaParser
 EasyScalaParser is a library for parsing grammar in the form of bnf notation.
 It supports four operations(And, OR, Repeat, Times, Option).
 
+How to use
+========
+ - Support scala version : 2.12.x
+ - You can use SBT, enter the following code.
+```
+resolvers += Resolver.bintrayRepo("waynejo", "maven")
+
+libraryDependencies ++= Seq(
+  "com.waynejo" %% "easyscalaparser" % "0.1",
+)
+
+```
 Operations
 ========
  - And
