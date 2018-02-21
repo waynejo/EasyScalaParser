@@ -30,6 +30,13 @@ object ParsingEngine {
     def parse[A](parsingElement: ParsingElement[A], text: String, parsingInjection: ParsingIgnore): Either[String, A] = {
         val parsingContext = ParsingContext(text, 0, Nil, parsingInjection, ParsingFailInfo())
         val parseResult = _parse(parsingElement, parsingContext, Nil)
-        parseResult.left.map(ErrorMessageBuilder.build(text)).right.map(_.result)
+        parseResult match {
+            case Right(info) if parsingContext.parsingInjection.ignore(text, info.nextContext.textIndex) == text.length =>
+                Right(info.result)
+            case Right(info) =>
+                Left(ErrorMessageBuilder.build(text)(info.nextContext.parsingFailInfo))
+            case Left(info) =>
+                Left(ErrorMessageBuilder.build(text)(info))
+        }
     }
 }
