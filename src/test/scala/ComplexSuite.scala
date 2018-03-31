@@ -22,10 +22,10 @@ class ComplexSuite extends FunSuite {
         assert(parser.parse("ab").contains(ParsingResult("ab")))
         assert(parser.parse("aabb").contains(ParsingResult("aabb")))
         assert(parser.parse("aaabbb").contains(ParsingResult("aaabbb")))
-        assert(parser.parse("aacbb") == Left(
+        assert(parser.parse("aacbb").left.map(x => x.replace("\r", "")) == Left(
           """[1:3] expected: group3 > group2 > group3 > group1 > b but cbb
             |[1:3] expected: group3 > group2 > group3 > group2 > group3 > group1 > a but cbb
             |[1:3] expected: group3 > group2 > group3 > group2 > group3 > group2 > a but cbb
-            |[1:2] expected: group3 > group1 > b but acbb""".stripMargin))
+            |[1:2] expected: group3 > group1 > b but acbb""".stripMargin.replace("\r", "")))
     }
 }
