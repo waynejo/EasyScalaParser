@@ -28,4 +28,24 @@ class ComplexSuite extends FunSuite {
             |[1:3] expected: group3 > group2 > group3 > group2 > group3 > group2 > a but cbb
             |[1:2] expected: group3 > group1 > b but acbb""".stripMargin.replace("\r", "")))
     }
+
+    test("If there is a value that succeeds too early.") {
+        case class ParsingResult(v: String)
+
+        val rule1 = Parser("group1").and("a") { case (v0) =>
+            ParsingResult(v0)
+        }
+
+        val rule2 = Parser("group2").and("a", "b") { case (v0, v1) =>
+            ParsingResult(v0 + v1)
+        }
+
+        val rule3 = Parser("group3").or(rule1)(x => x).or(rule2)(x => x)
+
+        val rule4 = Parser("group4").and(rule3, "c") { case (v0, v1) =>
+            ParsingResult(v0.v + v1)
+        }
+
+        assert(rule4.parse("abc").contains(ParsingResult("abc")))
+    }
 }
