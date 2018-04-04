@@ -3,21 +3,34 @@ package com.waynejo.easyscalaparser
 import com.waynejo.easyscalaparser.element.{ParsingElement, TerminalParsingElement}
 import com.waynejo.easyscalaparser.injection.ParsingIgnore
 
-case class ParsingContext(text: String, textIndex: Int, terminals: List[TerminalParsingElement], parsingInjection: ParsingIgnore, parsingFailInfo: ParsingFailInfo, parserStack: List[ParsingElement[_]]) {
+case class ParsingContext(
+                           text: String,
+                           terminals: List[TerminalParsingElement],
+                           parsingInjection: ParsingIgnore,
+                           parsingFailInfo: ParsingFailInfo,
+                           parsingState: List[ParsingState]
+                         ) {
+
+    def textIndex: Int = {
+        parsingState.head.textIndex
+    }
+
     def onFail(parsingFailInfo: ParsingFailInfo): ParsingContext = {
         copy(parsingFailInfo = parsingFailInfo)
     }
 
-    def onSuccess(nextIndex: Int): ParsingContext = {
-        copy(textIndex = nextIndex, terminals = Nil)
+    def onSuccess[A](successState: ParsingState): ParsingContext = {
+        copy(parsingState = successState :: parsingState)
     }
 
-    def onNext[A](textIndex: Int, parsingElement: ParsingElement[A]): ParsingContext = {
+    def onNext[A](textIndex: Int, parsingElement: ParsingElement[A]): (ParsingState, ParsingContext) = {
+        val state = parsingState.head
         val nextStack = if (parsingElement.isInstanceOf[TerminalParsingElement]) {
-            parserStack
+            state.parsingStack
         } else {
-            parsingElement :: parserStack
+            parsingElement :: state.parsingStack
         }
-        copy(textIndex = textIndex, parserStack = nextStack)
+        val nextState = state.copy(textIndex = textIndex, parsingStack = nextStack)
+        (nextState, copy(parsingState = parsingState.tail))
     }
 }

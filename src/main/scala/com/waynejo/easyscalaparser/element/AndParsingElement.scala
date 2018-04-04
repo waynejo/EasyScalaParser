@@ -2,7 +2,9 @@ package com.waynejo.easyscalaparser.element
 
 case class AndParsingElement1[A, B](pe0: ParsingElement[A], reducer: ((A)) => B, name: String = "") extends ParsingElement[B]
 
-case class AndParsingElement2[A, B, C](pe0: ParsingElement[A], pe1: ParsingElement[B], reducer: ((A, B)) => C, name: String = "") extends ParsingElement[C]
+case class AndParsingElement2[A, B, C](pe0: ParsingElement[A], pe1: ParsingElement[B], reducer: ((A, B)) => C, name: String = "") extends ParsingElement[C] {
+  type typeB = B
+}
 
 case class AndParsingElement3[A, B, C, D](pe0: ParsingElement[A], pe1: ParsingElement[B], pe2: ParsingElement[C], reducer: ((A, B, C)) => D, name: String = "") extends ParsingElement[D]
 
