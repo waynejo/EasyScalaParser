@@ -11,10 +11,6 @@ case class ParsingContext(
                            parsingState: List[ParsingState]
                          ) {
 
-    def textIndex: Int = {
-        parsingState.head.textIndex
-    }
-
     def onFail(parsingFailInfo: ParsingFailInfo): ParsingContext = {
         copy(parsingFailInfo = parsingFailInfo)
     }
@@ -25,12 +21,7 @@ case class ParsingContext(
 
     def onNext[A](textIndex: Int, parsingElement: ParsingElement[A]): (ParsingState, ParsingContext) = {
         val state = parsingState.head
-        val nextStack = if (parsingElement.isInstanceOf[TerminalParsingElement]) {
-            state.parsingStack
-        } else {
-            parsingElement :: state.parsingStack
-        }
-        val nextState = state.copy(textIndex = textIndex, parsingStack = nextStack)
+        val nextState = state.copy(textIndex = textIndex, parsingStack = state.parsingStack.tail)
         (nextState, copy(parsingState = parsingState.tail))
     }
 }

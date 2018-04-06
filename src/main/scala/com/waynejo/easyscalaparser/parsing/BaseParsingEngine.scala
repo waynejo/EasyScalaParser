@@ -28,18 +28,19 @@ object BaseParsingEngine {
 
     def parse[A](parsingContext: ParsingContext, parsingState: ParsingState): PartialFunction[ParsingElement[A], ParsingContext] = {
         case parsingElement@SimpleParsingElement(token) =>
-            if (parsingContext.text.substring(parsingContext.textIndex).startsWith(token)) {
-                parsingContext.onSuccess(ParsingState(parsingState, parsingContext.textIndex + token.length, token))
+            if (parsingContext.text.substring(parsingState.textIndex).startsWith(token)) {
+                parsingContext.onSuccess(ParsingState(parsingState, parsingState.textIndex + token.length, token))
             } else {
                 parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
-        case result@ResultParsingElement(value) =>
-            val headElement = parsingState.parsingStack.tail.head
-            val nextState = ParsingState(parsingState, AndParsingEngine.reduce(headElement, result))
+        case ResultParsingElement(value) =>
+            val headElement = parsingState.parsingStack.head
+            val remainState = parsingState.tail()
+            val nextState = remainState(AndParsingEngine.reduce(headElement, value))
             parsingContext.onSuccess(nextState)
 
-        case token: ParsingElement[A] =>
-            parsingContext.onSuccess(ParsingState(parsingState, parsingState.textIndex, token))
+//        case token: ParsingElement[A] =>
+//            parsingContext.onSuccess(ParsingState(parsingState, parsingState.textIndex, token))
 
 //        case parsingElement@RegexParsingElement(regex) =>
 //            val text = parsingContext.text.substring(parsingContext.textIndex)

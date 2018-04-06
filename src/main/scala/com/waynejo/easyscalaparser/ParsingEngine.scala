@@ -8,12 +8,12 @@ import com.waynejo.easyscalaparser.parsing.{AndParsingEngine, BaseParsingEngine,
 object ParsingEngine {
 
     def _parse[A](parsingContext: ParsingContext, parsingElement: ParsingElement[A]): ParsingContext = {
-        val ignoredIndex = parsingContext.parsingInjection.ignore(parsingContext.text, parsingContext.textIndex)
+        val textIndex = parsingContext.parsingState.head.textIndex
+        val ignoredIndex = parsingContext.parsingInjection.ignore(parsingContext.text, textIndex)
         val (nextState, nextContext) = parsingContext.onNext(ignoredIndex, parsingElement)
-        val parsingState = parsingContext.parsingState.head
-//
+
         val parser = BaseParsingEngine.parse[A](nextContext, nextState)
-//            .orElse(AndParsingEngine.parse[A](nextContext))
+            .orElse(AndParsingEngine.parse[A](nextContext, nextState))
 //            .orElse(OrParsingEngine.parse[A](nextContext))
 //
         parser(parsingElement)
@@ -25,15 +25,15 @@ object ParsingEngine {
 
         def _recursiveParse(context: ParsingContext): Either[String, A] = {
             context.parsingState match {
-                case ParsingState(ResultParsingElement(result) :: Nil, _) :: Nil if context.parsingInjection.ignore(text, context.textIndex) == text.length =>
+                case Nil =>
+                    Left(ErrorMessageBuilder.build(text)(context.parsingFailInfo))
+                case ParsingState(ResultParsingElement(result) :: Nil, _) :: Nil if context.parsingInjection.ignore(text, context.parsingState.head.textIndex) == text.length =>
                     Right(result.asInstanceOf[A])
                 case ParsingState(ResultParsingElement(_) :: Nil, _) :: Nil =>
                     Left(ErrorMessageBuilder.build(text)(context.parsingFailInfo))
                 case x :: xs =>
                     val nextContext = _parse(context, x.parsingStack.head)
                     _recursiveParse(nextContext)
-                case Nil =>
-                    Left(ErrorMessageBuilder.build(text)(context.parsingFailInfo))
             }
         }
 

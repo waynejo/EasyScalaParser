@@ -1,13 +1,13 @@
 package com.waynejo.easyscalaparser.parsing
 
 import com.waynejo.easyscalaparser.element._
-import com.waynejo.easyscalaparser.{ParsingContext, ParsingEngine, ParsingFailInfo, ParsingSuccessInfo}
+import com.waynejo.easyscalaparser._
 
 object AndParsingEngine {
 
     def reduce[A, B](reducer: ParsingElement[A], element: B): ParsingElement[A] = {
         reducer match {
-            case AndParsingElement1(_, function, name) =>
+            case AndParsingElement1(_, function, _) =>
                 ResultParsingElement(function(element))
 
             case element2@AndParsingElement2(_, pe1, function, name) =>
@@ -15,8 +15,13 @@ object AndParsingEngine {
         }
     }
 
-    def parse[A](parsingContext: ParsingContext): PartialFunction[ParsingElement[A], ParsingContext] = {
-        ???
+    def parse[A](parsingContext: ParsingContext, parsingState: ParsingState): PartialFunction[ParsingElement[A], ParsingContext] = {
+        case parsingElement@AndParsingElement1(pe0, _, _) =>
+            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+
+        case parsingElement@AndParsingElement2(pe0, _, _, _) =>
+            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+
 //        case AndParsingElement1(pe0, reducer, _) =>
 //            for {
 //                r0 <- ParsingEngine._parse(pe0, parsingContext)
