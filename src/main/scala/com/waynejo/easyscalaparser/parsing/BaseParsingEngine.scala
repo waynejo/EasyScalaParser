@@ -52,6 +52,16 @@ object BaseParsingEngine {
                     parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
 
+        case parsingElement@CustomParsingElement(parser, _) =>
+            val text = parsingContext.text.substring(parsingState.textIndex)
+            val matchResult = parser(text)
+            matchResult match {
+                case Some(token) =>
+                    parsingContext.onSuccess(parsingState(parsingState.textIndex + token.length, token))
+                case None =>
+                    parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
+            }
+
         case ResultParsingElement(value) =>
             val headElement = parsingState.parsingStack.head
             val remainState = parsingState.tail()
@@ -63,15 +73,7 @@ object BaseParsingEngine {
             parsingContext.onSuccess(nextState)
 
 
-//        case parsingElement@CustomParsingElement(parser, _) =>
-//            val text = parsingContext.text.substring(parsingContext.textIndex)
-//            val matchResult = parser(text)
-//            matchResult match {
-//                case Some(token) =>
-//                    Right(ParsingSuccessInfo(parsingContext.onSuccess(parsingContext.textIndex + token.length), token))
-//                case None =>
-//                    Left(ParsingFailInfo(parsingContext, parsingElement))
-//            }
+
 //        case ReferenceParsingElement(reference, _) =>
 //            ParsingEngine._parse(reference(), parsingContext)
 //        case OptionParsingElement(reference) =>
