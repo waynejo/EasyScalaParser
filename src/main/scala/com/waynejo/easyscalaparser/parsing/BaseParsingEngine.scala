@@ -65,30 +65,36 @@ object BaseParsingEngine {
         case parsingElement@OptionParsingElement(reference) =>
             parsingContext.onSuccess(parsingState(ResultParsingElement(None))).onSuccess(parsingState(parsingElement)(reference))
 
-        case ResultParsingElement(value) =>
+        case parsingElement@RepeatParsingElement(pe0, reducer: ((A, A) => A)) =>
+            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+
+        case resultElement@ResultParsingElement(value) =>
             val headElement = parsingState.parsingStack.head
             val remainState = parsingState.tail()
-            val nextState = headElement match {
-                case _: OrParsingElement[_, _] =>
-                    remainState(OrParsingEngine.reduce(headElement, value))
+            headElement match {
+                case parsingElement: RepeatParsingElement[_] =>
+                    val element: RepeatParsingElement[A] = parsingElement.asInstanceOf[RepeatParsingElement[A]]
+                    parsingContext.onSuccess(remainState(resultElement))
+                        .onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, value))(element.parsingElement))
+                case parsingElement: RepeatContinueParsingElement[_] =>
+                    val element = parsingElement.asInstanceOf[RepeatContinueParsingElement[A]]
+                    val nextValue = element.reducer(element.lastElement, value)
+                    parsingContext.onSuccess(remainState(ResultParsingElement(nextValue)))
+                      .onSuccess(remainState(element.copy(lastElement = nextValue))(element.parsingElement))
                 case _: OptionParsingElement[_] =>
-                    remainState(ResultParsingElement(Some(value)))
+                    parsingContext.onSuccess(remainState(ResultParsingElement(Some(value))))
+                case _: OrParsingElement[_, _] =>
+                    parsingContext.onSuccess(remainState(OrParsingEngine.reduce(headElement, value)))
                 case _ =>
-                    remainState(AndParsingEngine.reduce(headElement, value))
+                    parsingContext.onSuccess(remainState(AndParsingEngine.reduce(headElement, value)))
             }
-            parsingContext.onSuccess(nextState)
 
 
 
 //        case ReferenceParsingElement(reference, _) =>
 //            ParsingEngine._parse(reference(), parsingContext)
 
-//        case RepeatParsingElement(pe0, reducer: ((A, A) => A)) =>
-//            for {
-//                r0 <- ParsingEngine._parse(pe0, parsingContext)
-//                r1 <- repeat[A](pe0, r0.nextContext, reducer, 0, Int.MaxValue, r0.result)
-//            } yield ParsingSuccessInfo(r1.nextContext, r1.result)
-//
+
 //        case TimesParsingElement(pe0, lower, upper, reducer: ((A, A) => A)) =>
 //            if (lower > 0 && upper > 0) {
 //                for {
