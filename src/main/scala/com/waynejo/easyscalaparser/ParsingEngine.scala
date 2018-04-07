@@ -14,23 +14,22 @@ object ParsingEngine {
 
         val parser = BaseParsingEngine.parse[A](nextContext, nextState)
             .orElse(AndParsingEngine.parse[A](nextContext, nextState))
-//            .orElse(OrParsingEngine.parse[A](nextContext))
-//
+            .orElse(OrParsingEngine.parse[A](nextContext, nextState))
+
         parser(parsingElement)
     }
 
     def parse[A](parsingElement: ParsingElement[A], text: String, parsingInjection: ParsingIgnore): Either[String, A] = {
-        val parsingState = ParsingState(parsingElement :: Nil, 0)
+        val parsingElementWithEndOfString = AndParsingElement2(parsingElement, EndOfStringElement(), (x: A, _: Any) => x)
+        val parsingState = ParsingState(parsingElementWithEndOfString :: Nil, 0)
         val parsingContext = ParsingContext(text, Nil, parsingInjection, ParsingFailInfo(), parsingState :: Nil)
 
         def _recursiveParse(context: ParsingContext): Either[String, A] = {
             context.parsingState match {
                 case Nil =>
                     Left(ErrorMessageBuilder.build(text)(context.parsingFailInfo))
-                case ParsingState(ResultParsingElement(result) :: Nil, _) :: Nil if context.parsingInjection.ignore(text, context.parsingState.head.textIndex) == text.length =>
+                case ParsingState(ResultParsingElement(result) :: Nil, _) :: _ =>
                     Right(result.asInstanceOf[A])
-                case ParsingState(ResultParsingElement(_) :: Nil, _) :: Nil =>
-                    Left(ErrorMessageBuilder.build(text)(context.parsingFailInfo))
                 case x :: xs =>
                     val nextContext = _parse(context, x.parsingStack.head)
                     _recursiveParse(nextContext)
