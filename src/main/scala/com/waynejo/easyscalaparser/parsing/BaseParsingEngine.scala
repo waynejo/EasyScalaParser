@@ -62,13 +62,19 @@ object BaseParsingEngine {
                     parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
 
+        case parsingElement@OptionParsingElement(reference) =>
+            parsingContext.onSuccess(parsingState(ResultParsingElement(None))).onSuccess(parsingState(parsingElement)(reference))
+
         case ResultParsingElement(value) =>
             val headElement = parsingState.parsingStack.head
             val remainState = parsingState.tail()
-            val nextState = if (headElement.isInstanceOf[OrParsingElement[_, _]]) {
-                remainState(OrParsingEngine.reduce(headElement, value))
-            } else {
-                remainState(AndParsingEngine.reduce(headElement, value))
+            val nextState = headElement match {
+                case _: OrParsingElement[_, _] =>
+                    remainState(OrParsingEngine.reduce(headElement, value))
+                case _: OptionParsingElement[_] =>
+                    remainState(ResultParsingElement(Some(value)))
+                case _ =>
+                    remainState(AndParsingEngine.reduce(headElement, value))
             }
             parsingContext.onSuccess(nextState)
 
@@ -76,13 +82,7 @@ object BaseParsingEngine {
 
 //        case ReferenceParsingElement(reference, _) =>
 //            ParsingEngine._parse(reference(), parsingContext)
-//        case OptionParsingElement(reference) =>
-//            ParsingEngine._parse(reference, parsingContext) match {
-//                case Right(parsingSuccessInfo) =>
-//                    Right(ParsingSuccessInfo[A](parsingSuccessInfo.nextContext, Some(parsingSuccessInfo.result)))
-//                case Left(failInfo) =>
-//                    Right(ParsingSuccessInfo[A](parsingContext.onFail(failInfo), None))
-//            }
+
 //        case RepeatParsingElement(pe0, reducer: ((A, A) => A)) =>
 //            for {
 //                r0 <- ParsingEngine._parse(pe0, parsingContext)
