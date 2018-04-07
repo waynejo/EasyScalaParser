@@ -12,6 +12,9 @@ object AndParsingEngine {
 
             case element2@AndParsingElement2(_, pe1, function, name) =>
                 AndParsingElement1(pe1, function(element, _: element2.typeB), name)
+
+            case element3@AndParsingElement3(_, pe1, pe2, function, name) =>
+                AndParsingElement2(pe1, pe2, function(element, _: element3.typeB, _: element3.typeC), name)
         }
     }
 
@@ -20,6 +23,9 @@ object AndParsingEngine {
             parsingContext.onSuccess(parsingState(parsingElement)(pe0))
 
         case parsingElement@AndParsingElement2(pe0, _, _, _) =>
+            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+
+        case parsingElement@AndParsingElement3(pe0, _, _, _, _) =>
             parsingContext.onSuccess(parsingState(parsingElement)(pe0))
 
 //        case AndParsingElement1(pe0, reducer, _) =>
