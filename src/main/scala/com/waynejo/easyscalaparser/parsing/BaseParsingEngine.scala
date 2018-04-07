@@ -29,16 +29,27 @@ object BaseParsingEngine {
     def parse[A](parsingContext: ParsingContext, parsingState: ParsingState): PartialFunction[ParsingElement[A], ParsingContext] = {
         case parsingElement@EndOfStringElement() =>
             if (parsingContext.parsingInjection.ignore(parsingContext.text, parsingState.textIndex) == parsingContext.text.length) {
-                parsingContext.onSuccess(ParsingState(parsingState, parsingState.textIndex, Unit))
+                parsingContext.onSuccess(parsingState(parsingState.textIndex, Unit))
             } else {
                 parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
 
         case parsingElement@SimpleParsingElement(token) =>
             if (parsingContext.text.substring(parsingState.textIndex).startsWith(token)) {
-                parsingContext.onSuccess(ParsingState(parsingState, parsingState.textIndex + token.length, token))
+                parsingContext.onSuccess(parsingState(parsingState.textIndex + token.length, token))
             } else {
                 parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
+            }
+
+        case parsingElement@RegexParsingElement(regex) =>
+            val text = parsingContext.text.substring(parsingState.textIndex)
+            val matchResult = regex.findPrefixMatchOf(text)
+            matchResult match {
+                case Some(result) =>
+                    val token = text.substring(0, result.end)
+                    parsingContext.onSuccess(parsingState(parsingState.textIndex + token.length, token))
+                case None =>
+                    parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
 
         case ResultParsingElement(value) =>
@@ -51,19 +62,7 @@ object BaseParsingEngine {
             }
             parsingContext.onSuccess(nextState)
 
-//        case token: ParsingElement[A] =>
-//            parsingContext.onSuccess(ParsingState(parsingState, parsingState.textIndex, token))
 
-//        case parsingElement@RegexParsingElement(regex) =>
-//            val text = parsingContext.text.substring(parsingContext.textIndex)
-//            val matchResult = regex.findPrefixMatchOf(text)
-//            matchResult match {
-//                case Some(result) =>
-//                    val token = text.substring(0, result.end)
-//                    Right(ParsingSuccessInfo(parsingContext.onSuccess(parsingContext.textIndex + token.length), token))
-//                case None =>
-//                    Left(ParsingFailInfo(parsingContext, parsingElement))
-//            }
 //        case parsingElement@CustomParsingElement(parser, _) =>
 //            val text = parsingContext.text.substring(parsingContext.textIndex)
 //            val matchResult = parser(text)
