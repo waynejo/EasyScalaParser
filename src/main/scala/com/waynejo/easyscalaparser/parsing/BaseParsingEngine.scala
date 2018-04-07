@@ -65,8 +65,11 @@ object BaseParsingEngine {
         case parsingElement@OptionParsingElement(reference) =>
             parsingContext.onSuccess(parsingState(ResultParsingElement(None))).onSuccess(parsingState(parsingElement)(reference))
 
-        case parsingElement@RepeatParsingElement(pe0, reducer: ((A, A) => A)) =>
+        case parsingElement@RepeatParsingElement(pe0, _) =>
             parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+
+        case ReferenceParsingElement(reference, _) =>
+            parsingContext.onSuccess(parsingState(reference()))
 
         case resultElement@ResultParsingElement(value) =>
             val headElement = parsingState.parsingStack.head
@@ -91,8 +94,7 @@ object BaseParsingEngine {
 
 
 
-//        case ReferenceParsingElement(reference, _) =>
-//            ParsingEngine._parse(reference(), parsingContext)
+
 
 
 //        case TimesParsingElement(pe0, lower, upper, reducer: ((A, A) => A)) =>
