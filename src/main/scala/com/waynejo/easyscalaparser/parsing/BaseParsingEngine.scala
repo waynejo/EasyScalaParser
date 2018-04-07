@@ -27,16 +27,28 @@ object BaseParsingEngine {
 //    }
 
     def parse[A](parsingContext: ParsingContext, parsingState: ParsingState): PartialFunction[ParsingElement[A], ParsingContext] = {
+        case parsingElement@EndOfStringElement() =>
+            if (parsingContext.parsingInjection.ignore(parsingContext.text, parsingState.textIndex) == parsingContext.text.length) {
+                parsingContext.onSuccess(ParsingState(parsingState, parsingState.textIndex, Unit))
+            } else {
+                parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
+            }
+
         case parsingElement@SimpleParsingElement(token) =>
             if (parsingContext.text.substring(parsingState.textIndex).startsWith(token)) {
                 parsingContext.onSuccess(ParsingState(parsingState, parsingState.textIndex + token.length, token))
             } else {
                 parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
+
         case ResultParsingElement(value) =>
             val headElement = parsingState.parsingStack.head
             val remainState = parsingState.tail()
-            val nextState = remainState(AndParsingEngine.reduce(headElement, value))
+            val nextState = if (headElement.isInstanceOf[OrParsingElement[_, _]]) {
+                remainState(OrParsingEngine.reduce(headElement, value))
+            } else {
+                remainState(AndParsingEngine.reduce(headElement, value))
+            }
             parsingContext.onSuccess(nextState)
 
 //        case token: ParsingElement[A] =>

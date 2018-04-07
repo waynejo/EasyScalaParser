@@ -1,20 +1,24 @@
 package com.waynejo.easyscalaparser.parsing
 
 import com.waynejo.easyscalaparser.element._
-import com.waynejo.easyscalaparser.{ParsingContext, ParsingEngine, ParsingFailInfo, ParsingSuccessInfo}
+import com.waynejo.easyscalaparser._
 
 object OrParsingEngine {
-    def parse[A](parsingContext: ParsingContext): PartialFunction[ParsingElement[A], ParsingContext] = {
-        ???
-//        case OrParsingElement(pe0, reducer, next, _) =>
-//            next match {
-//                case Some(nextOrParsingElement) =>
-//                    ParsingEngine._parse(pe0, parsingContext).map(x => ParsingSuccessInfo(x.nextContext, reducer(x.result)))
-//                        .left.flatMap { case (failInfo: ParsingFailInfo) =>
-//                        OrParsingEngine.parse(parsingContext.onFail(failInfo))(nextOrParsingElement)
-//                    }
-//                case None =>
-//                    ParsingEngine._parse(pe0, parsingContext).map(x => ParsingSuccessInfo(x.nextContext, reducer(x.result)))
-//            }
+    def reduce[A, B](reducer: ParsingElement[A], element: B): ParsingElement[A] = {
+        reducer match {
+            case OrParsingElement(_, reduce, _, _) =>
+                ResultParsingElement(reduce(element))
+        }
+    }
+
+    def parse[A](parsingContext: ParsingContext, parsingState: ParsingState): PartialFunction[ParsingElement[A], ParsingContext] = {
+        case parsingElement@OrParsingElement(pe0, _, next, _) =>
+            next match {
+                case Some(nextOrParsingElement) =>
+                    val nextContext: ParsingContext = parse(parsingContext, parsingState)(nextOrParsingElement)
+                    nextContext.onSuccess(parsingState(parsingElement)(pe0))
+                case None =>
+                    parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            }
     }
 }
