@@ -1,8 +1,8 @@
 package com.waynejo.easyscalaparser
 
-import com.waynejo.easyscalaparser.element.ParsingElement
+import com.waynejo.easyscalaparser.element.{ParsingElement, SimpleParsingElement}
 
-case class ParsingFailInfo(failReasons: Array[ParsingFailReason] = Array())
+case class ParsingFailInfo(failReasons: Array[ParsingFailReason] = Array(), lastFailIndex: Int = 0, lastParsingElement: ParsingElement[_] = SimpleParsingElement(""))
 
 object ParsingFailInfo {
     private val parsingFailReasonNum = 10
@@ -11,6 +11,6 @@ object ParsingFailInfo {
         val failReason = ParsingFailReason(parsingState.textIndex, parsingElement.name, parsingState.parsingStack)
         val newInfo = parsingContext.parsingFailInfo.failReasons :+ failReason
         val orderedInfo = newInfo.sortBy(-_.index).take(parsingFailReasonNum)
-        ParsingFailInfo(orderedInfo)
+        ParsingFailInfo(orderedInfo, parsingState.textIndex, parsingElement)
     }
 }

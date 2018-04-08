@@ -3,16 +3,19 @@ package com.waynejo.easyscalaparser
 import com.waynejo.easyscalaparser.element.{ParsingElement, TerminalParsingElement}
 import com.waynejo.easyscalaparser.injection.ParsingIgnore
 
+import scala.collection.immutable.HashMap
+
 case class ParsingContext(
                            text: String,
                            terminals: List[TerminalParsingElement],
                            parsingInjection: ParsingIgnore,
                            parsingFailInfo: ParsingFailInfo,
-                           parsingState: List[ParsingState]
+                           parsingState: List[ParsingState],
+                           parsingFailMap: HashMap[(Int, ParsingElement[_]), Boolean] = HashMap[(Int, ParsingElement[_]), Boolean]()
                          ) {
 
     def onFail(parsingFailInfo: ParsingFailInfo): ParsingContext = {
-        copy(parsingFailInfo = parsingFailInfo)
+        copy(parsingFailInfo = parsingFailInfo, parsingFailMap = parsingFailMap.updated((parsingFailInfo.lastFailIndex, parsingFailInfo.lastParsingElement), true))
     }
 
     def onSuccess[A](successState: ParsingState): ParsingContext = {
