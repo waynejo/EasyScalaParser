@@ -15,7 +15,10 @@ case class ParsingContext(
                          ) {
 
     def onFail(parsingFailInfo: ParsingFailInfo): ParsingContext = {
-        copy(parsingFailInfo = parsingFailInfo, parsingFailMap = parsingFailMap.updated((parsingFailInfo.lastFailIndex, parsingFailInfo.lastParsingElement), true))
+        copy(
+            parsingFailInfo = parsingFailInfo,
+            parsingFailMap = parsingFailMap.updated((parsingFailInfo.lastFailIndex, parsingFailInfo.lastParsingElement), true)
+        )
     }
 
     def onSuccess[A](successState: ParsingState): ParsingContext = {

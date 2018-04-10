@@ -12,11 +12,15 @@ object ParsingEngine {
         val ignoredIndex = parsingContext.parsingInjection.ignore(parsingContext.text, textIndex)
         val (nextState, nextContext) = parsingContext.onNext(ignoredIndex, parsingElement)
 
-        val parser = BaseParsingEngine.parse[A](nextContext, nextState)
-            .orElse(AndParsingEngine.parse[A](nextContext, nextState))
-            .orElse(OrParsingEngine.parse[A](nextContext, nextState))
+        if (parsingContext.parsingFailMap.contains((nextState.textIndex, parsingElement))) {
+            nextContext
+        } else {
+            val parser = BaseParsingEngine.parse[A](nextContext, nextState)
+              .orElse(AndParsingEngine.parse[A](nextContext, nextState))
+              .orElse(OrParsingEngine.parse[A](nextContext, nextState))
 
-        parser(parsingElement)
+            parser(parsingElement)
+        }
     }
 
     def parse[A](parsingElement: ParsingElement[A], text: String, parsingInjection: ParsingIgnore): Either[String, A] = {
