@@ -15,10 +15,10 @@ object OrParsingEngine {
         case parsingElement@OrParsingElement(pe0, _, next, _) =>
             next match {
                 case Some(nextOrParsingElement) =>
-                    val nextContext: ParsingContext = parse(parsingContext, parsingState)(nextOrParsingElement)
-                    nextContext.onSuccess(parsingState(parsingElement)(pe0))
+                    val nextContext = parse(parsingContext, parsingState)(nextOrParsingElement)
+                    nextContext.onSuccess(parsingState(parsingElement)(pe0).markSplitIndex())
                 case None =>
-                    parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+                    parsingContext.onSuccess(parsingState(parsingElement)(pe0).markSplitIndex())
             }
     }
 }

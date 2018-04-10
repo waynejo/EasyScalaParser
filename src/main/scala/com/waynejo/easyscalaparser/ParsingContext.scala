@@ -15,9 +15,14 @@ case class ParsingContext(
                          ) {
 
     def onFail(parsingFailInfo: ParsingFailInfo): ParsingContext = {
+        val lastFailedParsingState = parsingFailInfo.lastFailParsingState
+        val failedIndex = lastFailedParsingState.textIndex
+        val lastElementUpdatedMap = parsingFailMap.updated((failedIndex, parsingFailInfo.lastParsingElement), true)
+        val failedElements = lastFailedParsingState.parsingStack.drop(lastFailedParsingState.splitIndex)
+        val nextFailMap = (lastElementUpdatedMap /: failedElements)((acc, x) => acc.updated((failedIndex, x), true))
         copy(
             parsingFailInfo = parsingFailInfo,
-            parsingFailMap = parsingFailMap.updated((parsingFailInfo.lastFailIndex, parsingFailInfo.lastParsingElement), true)
+            parsingFailMap = nextFailMap
         )
     }
 
