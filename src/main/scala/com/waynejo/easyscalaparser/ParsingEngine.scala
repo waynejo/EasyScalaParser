@@ -25,17 +25,17 @@ object ParsingEngine {
 
     def parse[A](parsingElement: ParsingElement[A], text: String, parsingInjection: ParsingIgnore): Either[String, A] = {
         val parsingElementWithEndOfString = AndParsingElement2(parsingElement, EndOfStringElement(), (x: A, _: Any) => x)
-        val parsingState = ParsingState(parsingElementWithEndOfString :: Nil)
+        val parsingState = ParsingState((0, parsingElementWithEndOfString) :: Nil)
         val parsingContext = ParsingContext(text, Nil, parsingInjection, ParsingFailInfo(), parsingState :: Nil)
 
         def _recursiveParse(context: ParsingContext): Either[String, A] = {
             context.parsingState match {
                 case Nil =>
                     Left(ErrorMessageBuilder.build(text)(context.parsingFailInfo))
-                case ParsingState(ResultParsingElement(result) :: Nil, _, _, _) :: _ =>
+                case ParsingState((_, ResultParsingElement(result)) :: Nil, _, _) :: _ =>
                     Right(result.asInstanceOf[A])
                 case x :: _ =>
-                    val nextContext = _parse(context, x.parsingStack.head)
+                    val nextContext = _parse(context, x.parsingStack.head._2)
                     _recursiveParse(nextContext)
             }
         }

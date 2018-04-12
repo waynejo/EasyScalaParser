@@ -33,5 +33,5 @@ abstract class ParsingElement[A] {
 }
 
 object ParsingElement {
-    private val nextId = new AtomicInteger(0)
+    val nextId = new AtomicInteger(0)
 }

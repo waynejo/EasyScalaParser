@@ -58,7 +58,7 @@ object BaseParsingEngine {
     }
 
     private def reduceResultElement[A](parsingContext: ParsingContext, parsingState: ParsingState, resultElement: ResultParsingElement[A], value: A) = {
-        val headElement = parsingState.parsingStack.head
+        val headElement = parsingState.parsingStack.head._2
         val remainState = parsingState.tail()
         headElement match {
             case parsingElement: RepeatParsingElement[_] =>

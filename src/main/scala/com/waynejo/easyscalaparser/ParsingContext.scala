@@ -16,9 +16,10 @@ case class ParsingContext(
 
     def onFail(parsingFailInfo: ParsingFailInfo): ParsingContext = {
         val lastFailedParsingState = parsingFailInfo.lastFailParsingState
-        val takeNum = lastFailedParsingState.parsingHistory.size - lastFailedParsingState.splitIndex
-        val failedElements = lastFailedParsingState.parsingHistory.take(takeNum)
-        val nextFailMap = (parsingFailMap /: failedElements)((acc, x) => acc.updated(x, true))
+        val takeNum = lastFailedParsingState.parsingStack.size - lastFailedParsingState.splitIndex
+        val failedElement = (parsingFailInfo.lastFailParsingState.textIndex, parsingFailInfo.lastParsingElement)
+        val failedElements = failedElement :: lastFailedParsingState.parsingStack.take(takeNum)
+        val nextFailMap = (parsingFailMap /: failedElements)((acc, x) => acc.updated((x._1, x._2.id), true))
         copy(
             parsingFailInfo = parsingFailInfo,
             parsingFailMap = nextFailMap
@@ -32,8 +33,7 @@ case class ParsingContext(
     def onNext[A](textIndex: Int, parsingElement: ParsingElement[A]): (ParsingState, ParsingContext) = {
         val state = parsingState.head
         val nextState = state.copy(textIndex = textIndex,
-            parsingStack = state.parsingStack.tail,
-            parsingHistory = (textIndex, parsingElement.id) :: state.parsingHistory
+            parsingStack = state.parsingStack.tail
         )
         (nextState, copy(parsingState = parsingState.tail))
     }
