@@ -22,7 +22,10 @@ case class ParsingContext(
         val nextFailMap = (parsingFailMap /: failedElements)((acc, x) => acc.updated((x._1, x._2.id), true))
         copy(
             parsingFailInfo = parsingFailInfo,
-            parsingFailMap = nextFailMap
+            parsingFailMap = nextFailMap,
+            parsingState = parsingState.filter(state => {
+                state.parsingStack.forall(x => !nextFailMap.contains((x._1, x._2.id)))
+            })
         )
     }
 

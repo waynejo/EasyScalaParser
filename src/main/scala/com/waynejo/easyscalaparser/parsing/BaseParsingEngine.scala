@@ -58,6 +58,7 @@ object BaseParsingEngine {
     }
 
     private def reduceResultElement[A](parsingContext: ParsingContext, parsingState: ParsingState, resultElement: ResultParsingElement[A], value: A) = {
+        val headIndex = parsingState.parsingStack.head._1
         val headElement = parsingState.parsingStack.head._2
         val remainState = parsingState.tail()
         headElement match {
@@ -97,7 +98,8 @@ object BaseParsingEngine {
                 parsingContext.onSuccess(remainState(OrParsingEngine.reduce(headElement, value)))
 
             case _ =>
-                parsingContext.onSuccess(remainState(AndParsingEngine.reduce(headElement, value)))
+                val nextPair = (headIndex, AndParsingEngine.reduce(headElement, value))
+                parsingContext.onSuccess(remainState(nextPair))
         }
     }
 }

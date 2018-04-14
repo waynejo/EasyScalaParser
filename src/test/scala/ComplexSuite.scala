@@ -15,7 +15,7 @@ class ComplexSuite extends FunSuite {
             ParsingResult(v0 + v1.v + v2)
         }
 
-        lazy val parser = Parser("group3")
+        lazy val parser: ParsingElement[ParsingResult] = Parser("group3")
             .or(rule0)(v => ParsingResult(v.v))
             .or(rule1)(v => ParsingResult(v.v))
 
@@ -25,6 +25,7 @@ class ComplexSuite extends FunSuite {
         assert(parser.parse("aacbb").left.map(x => x.replace("\r", "")) == Left(
           """[1:3] expected: group3 > group2 > group3 > group1 > b but cbb
             |[1:3] expected: group3 > group2 > group3 > group2 > group3 > group1 > a but cbb
+            |[1:3] expected: group3 > group2 > group3 > group2 > group3 > group2 > a but cbb
             |[1:2] expected: group3 > group1 > b but acbb""".stripMargin.replace("\r", "")))
     }
 

@@ -7,7 +7,7 @@ import com.waynejo.easyscalaparser.parsing.{AndParsingEngine, BaseParsingEngine,
 
 object ParsingEngine {
 
-    def _parse[A](parsingContext: ParsingContext, parsingElement: ParsingElement[A]): ParsingContext = {
+    def _parse[A](parsingContext: ParsingContext, lastElementTextIndex: Int, parsingElement: ParsingElement[A]): ParsingContext = {
         val textIndex = parsingContext.parsingState.head.textIndex
         val ignoredIndex = parsingContext.parsingInjection.ignore(parsingContext.text, textIndex)
         val (nextState, nextContext) = parsingContext.onNext(ignoredIndex, parsingElement)
@@ -16,7 +16,7 @@ object ParsingEngine {
             nextContext
         } else {
             val parser = BaseParsingEngine.parse[A](nextContext, nextState)
-              .orElse(AndParsingEngine.parse[A](nextContext, nextState))
+              .orElse(AndParsingEngine.parse[A](nextContext, nextState, lastElementTextIndex))
               .orElse(OrParsingEngine.parse[A](nextContext, nextState))
 
             parser(parsingElement)
@@ -35,7 +35,7 @@ object ParsingEngine {
                 case ParsingState((_, ResultParsingElement(result)) :: Nil, _, _) :: _ =>
                     Right(result.asInstanceOf[A])
                 case x :: _ =>
-                    val nextContext = _parse(context, x.parsingStack.head._2)
+                    val nextContext = _parse(context, x.parsingStack.head._1, x.parsingStack.head._2)
                     _recursiveParse(nextContext)
             }
         }

@@ -75,71 +75,71 @@ object AndParsingEngine {
         }
     }
 
-    def parse[A](parsingContext: ParsingContext, parsingState: ParsingState): PartialFunction[ParsingElement[A], ParsingContext] = {
+    def parse[A](parsingContext: ParsingContext, parsingState: ParsingState, lastElementTextIndex: Int): PartialFunction[ParsingElement[A], ParsingContext] = {
         case parsingElement@AndParsingElement1(pe0, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement2(pe0, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement3(pe0, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement4(pe0, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement5(pe0, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement6(pe0, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement7(pe0, _, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement8(pe0, _, _, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement9(pe0, _, _, _, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement10(pe0, _, _, _, _, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement11(pe0, _, _, _, _, _, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement12(pe0, _, _, _, _, _, _, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement13(pe0, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement14(pe0, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement15(pe0, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement16(pe0, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement17(pe0, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement18(pe0, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement19(pe0, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement20(pe0, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement21(pe0, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
         case parsingElement@AndParsingElement22(pe0, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _) =>
-            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+            parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
     }
 }

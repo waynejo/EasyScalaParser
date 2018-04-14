@@ -1,6 +1,6 @@
 package com.waynejo.easyscalaparser.parsing
 
-import com.waynejo.easyscalaparser.element._
+import com.waynejo.easyscalaparser.element.{OrParsingElement, _}
 import com.waynejo.easyscalaparser._
 
 object OrParsingEngine {
@@ -16,9 +16,9 @@ object OrParsingEngine {
             next match {
                 case Some(nextOrParsingElement) =>
                     val nextContext = parse(parsingContext, parsingState)(nextOrParsingElement)
-                    nextContext.onSuccess(parsingState(parsingElement)(pe0).markSplitIndex())
+                    nextContext.onSuccess(parsingState(parsingElement).markSplitIndex()(pe0))
                 case None =>
-                    parsingContext.onSuccess(parsingState(parsingElement)(pe0).markSplitIndex())
+                    parsingContext.onSuccess(parsingState(parsingElement)(pe0))
             }
     }
 }
