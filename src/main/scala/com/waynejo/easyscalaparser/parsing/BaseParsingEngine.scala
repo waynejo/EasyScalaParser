@@ -64,8 +64,8 @@ object BaseParsingEngine {
         headElement match {
             case parsingElement: RepeatParsingElement[_] =>
                 val element = parsingElement.asInstanceOf[RepeatParsingElement[A]]
-                parsingContext.onSuccess(remainState(resultElement))
-                  .onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, 0, Integer.MAX_VALUE, value))(element.parsingElement).markSplitIndex())
+                parsingContext.onSuccess(remainState(resultElement).markSplitIndex())
+                  .onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, 0, Integer.MAX_VALUE, value)).markSplitIndex()(element.parsingElement))
 
             case parsingElement: TimesParsingElement[_] =>
                 val element = parsingElement.asInstanceOf[TimesParsingElement[A]]
@@ -84,7 +84,7 @@ object BaseParsingEngine {
                 val nextElement = element.copy(lower = element.lower - 1, upper = element.upper - 1)
                 if (0 >= nextElement.lower && 0 <= nextElement.upper) {
                     parsingContext.onSuccess(remainState(ResultParsingElement(nextValue)))
-                      .onSuccess(remainState(nextElement.copy(lastElement = nextValue))(nextElement.parsingElement).markSplitIndex())
+                      .onSuccess(remainState(nextElement.copy(lastElement = nextValue)).markSplitIndex()(nextElement.parsingElement))
                 } else if (0 < nextElement.lower && 0 <= nextElement.upper) {
                     parsingContext.onSuccess(remainState(nextElement.copy(lastElement = nextValue))(nextElement.parsingElement))
                 } else {
