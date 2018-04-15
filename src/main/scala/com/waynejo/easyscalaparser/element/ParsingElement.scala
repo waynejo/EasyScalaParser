@@ -11,6 +11,8 @@ abstract class ParsingElement[A] {
 
     def name: String
 
+    def srcId(): Int = id
+
     def parse(text: String, parsingInjection: ParsingIgnore = ParsingIgnoreNothing): Either[String, A] = {
         ParsingEngine.parse(this, text, parsingInjection)
     }
