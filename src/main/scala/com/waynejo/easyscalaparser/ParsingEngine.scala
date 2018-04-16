@@ -1,32 +1,45 @@
 package com.waynejo.easyscalaparser
 
-import com.waynejo.easyscalaparser.element.{TerminalParsingElement, _}
+import com.waynejo.easyscalaparser.element._
 import com.waynejo.easyscalaparser.injection.ParsingIgnore
 import com.waynejo.easyscalaparser.parsing.{AndParsingEngine, BaseParsingEngine, OrParsingEngine}
 
+
 object ParsingEngine {
 
-    def _parse[A](parsingElement: ParsingElement[A], parsingContext: ParsingContext): Either[ParsingFailInfo, ParsingSuccessInfo[A]] = {
-        val ignoredIndex = parsingContext.parsingInjection.ignore(parsingContext.text, parsingContext.textIndex)
-        val nextContext = parsingContext.onNext(ignoredIndex, parsingElement)
+    def _parse[A](parsingContext: ParsingContext, lastElementTextIndex: Int, parsingElement: ParsingElement[A]): ParsingContext = {
+        val textIndex = parsingContext.parsingState.head.textIndex
+        val ignoredIndex = parsingContext.parsingInjection.ignore(parsingContext.text, textIndex)
+        val (nextState, nextContext) = parsingContext.onNext(ignoredIndex, parsingElement)
 
-        val parser = BaseParsingEngine.parse[A](nextContext)
-            .orElse(AndParsingEngine.parse[A](nextContext))
-            .orElse(OrParsingEngine.parse[A](nextContext))
+        if (parsingContext.parsingFailMap.contains((nextState.textIndex, parsingElement.id))) {
+            nextContext
+        } else {
+            val parser = BaseParsingEngine.parse[A](nextContext, nextState)
+              .orElse(AndParsingEngine.parse[A](nextContext, nextState, lastElementTextIndex))
+              .orElse(OrParsingEngine.parse[A](nextContext, nextState))
 
-        parser(parsingElement)
+            parser(parsingElement)
+        }
     }
 
     def parse[A](parsingElement: ParsingElement[A], text: String, parsingInjection: ParsingIgnore): Either[String, A] = {
-        val parsingContext = ParsingContext(text, 0, Nil, parsingInjection, ParsingFailInfo(), Nil)
-        val parseResult = _parse(parsingElement, parsingContext)
-        parseResult match {
-            case Right(info) if parsingContext.parsingInjection.ignore(text, info.nextContext.textIndex) == text.length =>
-                Right(info.result)
-            case Right(info) =>
-                Left(ErrorMessageBuilder.build(text)(info.nextContext.parsingFailInfo))
-            case Left(info) =>
-                Left(ErrorMessageBuilder.build(text)(info))
+        val parsingElementWithEndOfString = AndParsingElement2(parsingElement, EndOfStringElement(), (x: A, _: Any) => x)
+        val parsingState = ParsingState((0, parsingElementWithEndOfString) :: Nil)
+        val parsingContext = ParsingContext(text, Nil, parsingInjection, ParsingFailInfo(), parsingState :: Nil)
+
+        def _recursiveParse(context: ParsingContext): Either[String, A] = {
+            context.parsingState match {
+                case Nil =>
+                    Left(ErrorMessageBuilder.build(text)(context.parsingFailInfo))
+                case ParsingState((_, ResultParsingElement(result)) :: Nil, _, _) :: _ =>
+                    Right(result.asInstanceOf[A])
+                case x :: _ =>
+                    val nextContext = _parse(context, x.parsingStack.head._1, x.parsingStack.head._2)
+                    _recursiveParse(nextContext)
+            }
         }
+
+        _recursiveParse(parsingContext)
     }
 }

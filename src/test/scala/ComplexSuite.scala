@@ -15,7 +15,7 @@ class ComplexSuite extends FunSuite {
             ParsingResult(v0 + v1.v + v2)
         }
 
-        lazy val parser = Parser("group3")
+        lazy val parser: ParsingElement[ParsingResult] = Parser("group3")
             .or(rule0)(v => ParsingResult(v.v))
             .or(rule1)(v => ParsingResult(v.v))
 

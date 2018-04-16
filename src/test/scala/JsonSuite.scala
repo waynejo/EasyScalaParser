@@ -24,11 +24,11 @@ class JsonSuite extends FunSuite {
             .or(Parser.refer(() => jsonObject))(x => x)
             .or(Parser.refer(() => jsonArray))(x => x)
 
-    def jsonObjectBody = Parser.and(jsonKey, ":", jsonValue)(x => (x._1, x._3))
-    def jsonObjectBodyRecursive = Parser.and(jsonObjectBody, Parser.and(",", jsonObjectBody)(x => x._2 :: Nil).repeat.option)(x => x._1 :: x._2.getOrElse(Nil))
-    def jsonObject = Parser("JsonObject").and("{", jsonObjectBodyRecursive.option, "}")(x => JsonObject(x._2.getOrElse(Nil).toMap))
-    def jsonArrayBodyRecursive = Parser.and(jsonValue, Parser.and(",", jsonValue)(x => x._2 :: Nil).repeat.option)(x => x._1 :: x._2.getOrElse(Nil))
-    def jsonArray = Parser("JsonArray").and("[", jsonArrayBodyRecursive.option, "]")(x => JsonArray(x._2.getOrElse(Nil)))
+    def jsonObjectBody = Parser.and(jsonKey, ":", jsonValue)((x, _, y) => (x, y))
+    def jsonObjectBodyRecursive = Parser.and(jsonObjectBody, Parser.and(",", jsonObjectBody)((_, x) => x :: Nil).repeat.option)((x, y) => x :: y.getOrElse(Nil))
+    def jsonObject = Parser("JsonObject").and("{", jsonObjectBodyRecursive.option, "}")((_, x, _) => JsonObject(x.getOrElse(Nil).toMap))
+    def jsonArrayBodyRecursive = Parser.and(jsonValue, Parser.and(",", jsonValue)((_, x) => x :: Nil).repeat.option)((x, y) => x :: y.getOrElse(Nil))
+    def jsonArray = Parser("JsonArray").and("[", jsonArrayBodyRecursive.option, "]")((_, x, _) => JsonArray(x.getOrElse(Nil)))
     def jsonParser = Parser("Json").or[JsonElement](jsonObject)(x => x).or(jsonArray)(x => x)
 
     test("simple json parser") {

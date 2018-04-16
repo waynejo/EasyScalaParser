@@ -1,80 +1,105 @@
 package com.waynejo.easyscalaparser.parsing
 
-import com.waynejo.easyscalaparser._
+import com.waynejo.easyscalaparser.{ParsingState, _}
 import com.waynejo.easyscalaparser.element._
-
-import scala.annotation.tailrec
 
 object BaseParsingEngine {
 
-    @tailrec
-    private def repeat[A](parsingElement: ParsingElement[A], parsingContext: ParsingContext, reducer: (A, A) => A, lower: Int, upper: Int, acc: A): Either[ParsingFailInfo, ParsingSuccessInfo[A]] = {
-        if (0 >= upper) {
-            Right(ParsingSuccessInfo[A](parsingContext, acc))
-        } else {
-            ParsingEngine._parse(parsingElement, parsingContext.copy(terminals = Nil)) match {
-                case Right(parsingSuccessInfo) =>
-                    val nextAcc = reducer(acc, parsingSuccessInfo.result)
-                    repeat(parsingElement, parsingSuccessInfo.nextContext, reducer, lower - 1, upper - 1, nextAcc)
-                case Left(failInfo: ParsingFailInfo) =>
-                    if (lower > 0) {
-                        Left(failInfo)
-                    } else {
-                        Right(ParsingSuccessInfo[A](parsingContext.onFail(failInfo), acc))
-                    }
-            }
-        }
-    }
-
-    def parse[A](parsingContext: ParsingContext): PartialFunction[ParsingElement[A], Either[ParsingFailInfo, ParsingSuccessInfo[A]]] = {
-        case parsingElement@SimpleParsingElement(token) =>
-            if (parsingContext.text.substring(parsingContext.textIndex).startsWith(token)) {
-                Right(ParsingSuccessInfo(parsingContext.onSuccess(parsingContext.textIndex + token.length), token))
+    def parse[A](parsingContext: ParsingContext, parsingState: ParsingState): PartialFunction[ParsingElement[A], ParsingContext] = {
+        case parsingElement@EndOfStringElement() =>
+            if (parsingContext.parsingInjection.ignore(parsingContext.text, parsingState.textIndex) == parsingContext.text.length) {
+                parsingContext.onSuccess(parsingState(parsingState.textIndex, Unit))
             } else {
-                Left(ParsingFailInfo(parsingContext, parsingElement))
+                parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
+
+        case parsingElement@SimpleParsingElement(token) =>
+            if (parsingContext.text.substring(parsingState.textIndex).startsWith(token)) {
+                parsingContext.onSuccess(parsingState(parsingState.textIndex + token.length, token))
+            } else {
+                parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
+            }
+
         case parsingElement@RegexParsingElement(regex) =>
-            val text = parsingContext.text.substring(parsingContext.textIndex)
+            val text = parsingContext.text.substring(parsingState.textIndex)
             val matchResult = regex.findPrefixMatchOf(text)
             matchResult match {
                 case Some(result) =>
                     val token = text.substring(0, result.end)
-                    Right(ParsingSuccessInfo(parsingContext.onSuccess(parsingContext.textIndex + token.length), token))
+                    parsingContext.onSuccess(parsingState(parsingState.textIndex + token.length, token))
                 case None =>
-                    Left(ParsingFailInfo(parsingContext, parsingElement))
+                    parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
+
         case parsingElement@CustomParsingElement(parser, _) =>
-            val text = parsingContext.text.substring(parsingContext.textIndex)
+            val text = parsingContext.text.substring(parsingState.textIndex)
             val matchResult = parser(text)
             matchResult match {
                 case Some(token) =>
-                    Right(ParsingSuccessInfo(parsingContext.onSuccess(parsingContext.textIndex + token.length), token))
+                    parsingContext.onSuccess(parsingState(parsingState.textIndex + token.length, token))
                 case None =>
-                    Left(ParsingFailInfo(parsingContext, parsingElement))
+                    parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
-        case ReferenceParsingElement(reference, _) =>
-            ParsingEngine._parse(reference(), parsingContext)
-        case OptionParsingElement(reference) =>
-            ParsingEngine._parse(reference, parsingContext) match {
-                case Right(parsingSuccessInfo) =>
-                    Right(ParsingSuccessInfo[A](parsingSuccessInfo.nextContext, Some(parsingSuccessInfo.result)))
-                case Left(failInfo) =>
-                    Right(ParsingSuccessInfo[A](parsingContext.onFail(failInfo), None))
-            }
-        case RepeatParsingElement(pe0, reducer: ((A, A) => A)) =>
-            for {
-                r0 <- ParsingEngine._parse(pe0, parsingContext)
-                r1 <- repeat[A](pe0, r0.nextContext, reducer, 0, Int.MaxValue, r0.result)
-            } yield ParsingSuccessInfo(r1.nextContext, r1.result)
 
-        case TimesParsingElement(pe0, lower, upper, reducer: ((A, A) => A)) =>
-            if (lower > 0 && upper > 0) {
-                for {
-                    r0 <- ParsingEngine._parse(pe0, parsingContext)
-                    r1 <- repeat[A](pe0, r0.nextContext, reducer, lower - 1, upper - 1, r0.result)
-                } yield ParsingSuccessInfo(r1.nextContext, r1.result)
-            } else {
-                Left(ParsingFailInfo(parsingContext, pe0))
-            }
+        case parsingElement@OptionParsingElement(reference) =>
+            parsingContext.onSuccess(parsingState(ResultParsingElement(None))).onSuccess(parsingState(parsingElement)(reference).markSplitIndex())
+
+        case parsingElement@RepeatParsingElement(pe0, _) =>
+            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+
+        case parsingElement@TimesParsingElement(pe0, _, _, _) =>
+            parsingContext.onSuccess(parsingState(parsingElement)(pe0))
+
+        case ReferenceParsingElement(reference, _) =>
+            parsingContext.onSuccess(parsingState(reference()))
+
+        case resultElement@ResultParsingElement(value) =>
+            reduceResultElement(parsingContext, parsingState, resultElement, value)
+    }
+
+    private def reduceResultElement[A](parsingContext: ParsingContext, parsingState: ParsingState, resultElement: ResultParsingElement[A], value: A) = {
+        val headIndex = parsingState.parsingStack.head._1
+        val headElement = parsingState.parsingStack.head._2
+        val remainState = parsingState.tail()
+        headElement match {
+            case parsingElement: RepeatParsingElement[_] =>
+                val element = parsingElement.asInstanceOf[RepeatParsingElement[A]]
+                parsingContext.onSuccess(remainState(resultElement).markSplitIndex())
+                  .onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, 0, Integer.MAX_VALUE, value)).markSplitIndex()(element.parsingElement))
+
+            case parsingElement: TimesParsingElement[_] =>
+                val element = parsingElement.asInstanceOf[TimesParsingElement[A]]
+                if (element.lower == 1 && element.upper > 0) {
+                    parsingContext.onSuccess(remainState(resultElement))
+                      .onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, element.lower - 1, element.upper - 1, value))(element.parsingElement).markSplitIndex())
+                } else if (element.lower > 0 && element.upper > 0) {
+                    parsingContext.onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, element.lower - 1, element.upper - 1, value))(element.parsingElement))
+                } else {
+                    parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
+                }
+
+            case parsingElement: RepeatContinueParsingElement[_] =>
+                val element = parsingElement.asInstanceOf[RepeatContinueParsingElement[A]]
+                val nextValue = element.reducer(element.lastElement, value)
+                val nextElement = element.copy(lower = element.lower - 1, upper = element.upper - 1)
+                if (0 >= nextElement.lower && 0 <= nextElement.upper) {
+                    parsingContext.onSuccess(remainState(ResultParsingElement(nextValue)))
+                      .onSuccess(remainState(nextElement.copy(lastElement = nextValue)).markSplitIndex()(nextElement.parsingElement))
+                } else if (0 < nextElement.lower && 0 <= nextElement.upper) {
+                    parsingContext.onSuccess(remainState(nextElement.copy(lastElement = nextValue))(nextElement.parsingElement))
+                } else {
+                    parsingContext
+                }
+
+            case _: OptionParsingElement[_] =>
+                parsingContext.onSuccess(remainState(ResultParsingElement(Some(value))))
+
+            case _: OrParsingElement[_, _] =>
+                parsingContext.onSuccess(remainState(OrParsingEngine.reduce(headElement, value)))
+
+            case _ =>
+                val nextPair = (headIndex, AndParsingEngine.reduce(headElement, value))
+                parsingContext.onSuccess(remainState(nextPair))
+        }
     }
 }
