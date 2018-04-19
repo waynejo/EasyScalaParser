@@ -11,7 +11,8 @@ case class ParsingContext(
                            parsingInjection: ParsingIgnore,
                            parsingFailInfo: ParsingFailInfo,
                            parsingState: List[ParsingState],
-                           parsingFailMap: HashMap[(Int, Int), Boolean] = HashMap[(Int, Int), Boolean]()
+                           parsingFailMap: HashMap[(Int, Int), Boolean] = HashMap[(Int, Int), Boolean](),
+                           parsingSuccessMap: HashMap[(Int, Int), Vector[ParsingElement[_]]] = HashMap[(Int, Int), Vector[ParsingElement[_]]]()
                          ) {
 
     def onFail(parsingFailInfo: ParsingFailInfo): ParsingContext = {
@@ -31,6 +32,15 @@ case class ParsingContext(
 
     def onSuccess[A](successState: ParsingState): ParsingContext = {
         copy(parsingState = successState :: parsingState)
+    }
+
+    def onCacheResult[A](position: (Int, Int), element: Vector[ParsingElement[_]]): ParsingContext = {
+        val nextValue = if (parsingSuccessMap.contains(position)) {
+            parsingSuccessMap(position) ++ element
+        } else {
+            element
+        }
+        copy(parsingSuccessMap = parsingSuccessMap.updated(position, nextValue))
     }
 
     def onNext[A](textIndex: Int, parsingElement: ParsingElement[A]): (ParsingState, ParsingContext) = {

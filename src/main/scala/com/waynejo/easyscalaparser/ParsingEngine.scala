@@ -12,8 +12,12 @@ object ParsingEngine {
         val ignoredIndex = parsingContext.parsingInjection.ignore(parsingContext.text, textIndex)
         val (nextState, nextContext) = parsingContext.onNext(ignoredIndex, parsingElement)
 
-        if (parsingContext.parsingFailMap.contains((nextState.textIndex, parsingElement.id))) {
+        val cacheKey = (nextState.textIndex, parsingElement.id)
+        if (parsingContext.parsingFailMap.contains(cacheKey)) {
             nextContext
+        } else if (parsingContext.parsingSuccessMap.contains(cacheKey)) {
+            val nextResults = parsingContext.parsingSuccessMap(cacheKey)
+            (parsingContext /: nextResults)((acc, x) => acc.onSuccess(nextState(x)))
         } else {
             val parser = BaseParsingEngine.parse[A](nextContext, nextState)
               .orElse(AndParsingEngine.parse[A](nextContext, nextState, lastElementTextIndex))

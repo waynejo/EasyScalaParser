@@ -16,6 +16,7 @@ object BaseParsingEngine {
         case parsingElement@SimpleParsingElement(token) =>
             if (parsingContext.text.substring(parsingState.textIndex).startsWith(token)) {
                 parsingContext.onSuccess(parsingState(parsingState.textIndex + token.length, token))
+                  .onCacheResult((parsingState.textIndex, parsingElement.srcId()), Vector(ResultParsingElement(token)))
             } else {
                 parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
