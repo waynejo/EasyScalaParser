@@ -17,7 +17,7 @@ object ParsingEngine {
             nextContext
         } else if (parsingContext.parsingSuccessMap.contains(cacheKey)) {
             val nextResults = parsingContext.parsingSuccessMap(cacheKey)
-            (parsingContext /: nextResults)((acc, x) => acc.onSuccess(nextState(x)))
+            (nextContext /: nextResults)((acc, x) => acc.onSuccess(nextState(x._1, x._2)))
         } else {
             val parser = BaseParsingEngine.parse[A](nextContext, nextState)
               .orElse(AndParsingEngine.parse[A](nextContext, nextState, lastElementTextIndex))

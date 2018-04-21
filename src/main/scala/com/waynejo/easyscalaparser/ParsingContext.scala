@@ -1,6 +1,6 @@
 package com.waynejo.easyscalaparser
 
-import com.waynejo.easyscalaparser.element.{ParsingElement, TerminalParsingElement}
+import com.waynejo.easyscalaparser.element.{ParsingElement, ResultParsingElement, TerminalParsingElement}
 import com.waynejo.easyscalaparser.injection.ParsingIgnore
 
 import scala.collection.immutable.HashMap
@@ -12,7 +12,7 @@ case class ParsingContext(
                            parsingFailInfo: ParsingFailInfo,
                            parsingState: List[ParsingState],
                            parsingFailMap: HashMap[(Int, Int), Boolean] = HashMap[(Int, Int), Boolean](),
-                           parsingSuccessMap: HashMap[(Int, Int), Vector[ParsingElement[_]]] = HashMap[(Int, Int), Vector[ParsingElement[_]]]()
+                           parsingSuccessMap: HashMap[(Int, Int), Vector[(Int, ResultParsingElement[_])]] = HashMap[(Int, Int), Vector[(Int, ResultParsingElement[_])]]()
                          ) {
 
     def onFail(parsingFailInfo: ParsingFailInfo): ParsingContext = {
@@ -34,18 +34,19 @@ case class ParsingContext(
         copy(parsingState = successState :: parsingState)
     }
 
-    def onCacheResult[A](position: (Int, Int), element: Vector[ParsingElement[_]]): ParsingContext = {
+    def onCacheResult[A](position: (Int, Int), nextIndex: Int, element: ResultParsingElement[_]): ParsingContext = {
         val nextValue = if (parsingSuccessMap.contains(position)) {
-            parsingSuccessMap(position) ++ element
+            parsingSuccessMap(position) :+ (nextIndex, element)
         } else {
-            element
+            Vector[(Int, ResultParsingElement[_])]((nextIndex, element))
         }
         copy(parsingSuccessMap = parsingSuccessMap.updated(position, nextValue))
     }
 
     def onNext[A](textIndex: Int, parsingElement: ParsingElement[A]): (ParsingState, ParsingContext) = {
         val state = parsingState.head
-        val nextState = state.copy(textIndex = textIndex,
+        val nextState = state.copy(
+            textIndex = textIndex,
             parsingStack = state.parsingStack.tail
         )
         (nextState, copy(parsingState = parsingState.tail))

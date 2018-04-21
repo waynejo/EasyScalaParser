@@ -12,8 +12,8 @@ case class ParsingState(parsingStack: List[(Int, ParsingElement[_])] = Nil, text
     ParsingState((textIndex, parsingElement) :: parsingStack, textIndex, splitIndex)
   }
 
-  def apply[A](textIndex: Int, value: A): ParsingState = {
-    ParsingState((textIndex, ResultParsingElement(value)) :: parsingStack, textIndex, splitIndex)
+  def apply[A](textIndex: Int, resultElement: ResultParsingElement[A]): ParsingState = {
+    ParsingState((textIndex, resultElement) :: parsingStack, textIndex, splitIndex)
   }
 
   def tail[A](): ParsingState = {

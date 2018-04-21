@@ -8,15 +8,16 @@ object BaseParsingEngine {
     def parse[A](parsingContext: ParsingContext, parsingState: ParsingState): PartialFunction[ParsingElement[A], ParsingContext] = {
         case parsingElement@EndOfStringElement() =>
             if (parsingContext.parsingInjection.ignore(parsingContext.text, parsingState.textIndex) == parsingContext.text.length) {
-                parsingContext.onSuccess(parsingState(parsingState.textIndex, Unit))
+                parsingContext.onSuccess(parsingState(parsingState.textIndex, ResultParsingElement[Unit](Unit)))
             } else {
                 parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
 
         case parsingElement@SimpleParsingElement(token) =>
             if (parsingContext.text.substring(parsingState.textIndex).startsWith(token)) {
-                parsingContext.onSuccess(parsingState(parsingState.textIndex + token.length, token))
-                  .onCacheResult((parsingState.textIndex, parsingElement.srcId()), Vector(ResultParsingElement(token)))
+                val nextIndex = parsingState.textIndex + token.length
+                parsingContext.onSuccess(parsingState(nextIndex, ResultParsingElement(token)))
+                  .onCacheResult((parsingState.textIndex, parsingElement.srcId()), nextIndex, ResultParsingElement(token))
             } else {
                 parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
@@ -27,7 +28,7 @@ object BaseParsingEngine {
             matchResult match {
                 case Some(result) =>
                     val token = text.substring(0, result.end)
-                    parsingContext.onSuccess(parsingState(parsingState.textIndex + token.length, token))
+                    parsingContext.onSuccess(parsingState(parsingState.textIndex + token.length, ResultParsingElement(token)))
                 case None =>
                     parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
@@ -37,7 +38,7 @@ object BaseParsingEngine {
             val matchResult = parser(text)
             matchResult match {
                 case Some(token) =>
-                    parsingContext.onSuccess(parsingState(parsingState.textIndex + token.length, token))
+                    parsingContext.onSuccess(parsingState(parsingState.textIndex + token.length, ResultParsingElement(token)))
                 case None =>
                     parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
