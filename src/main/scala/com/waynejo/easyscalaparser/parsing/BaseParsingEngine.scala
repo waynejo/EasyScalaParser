@@ -105,7 +105,9 @@ object BaseParsingEngine {
                   .onCacheResult((headIndex, headElement.srcId()), remainState.textIndex, parsingResultElement)
 
             case _: OrParsingElement[_, _] =>
-                parsingContext.onSuccess(remainState(OrParsingEngine.reduce(headElement, value)))
+                val resultState = OrParsingEngine.reduce(headElement, value)
+                parsingContext.onSuccess(remainState(resultState))
+                  .onCacheResult((headIndex, headElement.srcId()), remainState.textIndex, resultState)
 
             case _ =>
                 val nextResult = AndParsingEngine.reduce(headElement, value)

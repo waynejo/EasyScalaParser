@@ -4,7 +4,7 @@ import com.waynejo.easyscalaparser.element.{OrParsingElement, _}
 import com.waynejo.easyscalaparser._
 
 object OrParsingEngine {
-    def reduce[A, B](reducer: ParsingElement[A], element: B): ParsingElement[A] = {
+    def reduce[A, B](reducer: ParsingElement[A], element: B): ResultParsingElement[A] = {
         reducer match {
             case OrParsingElement(_, reduce, _, _) =>
                 ResultParsingElement(reduce(element))
