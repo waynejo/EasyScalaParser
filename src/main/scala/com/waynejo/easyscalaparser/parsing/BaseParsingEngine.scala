@@ -28,7 +28,9 @@ object BaseParsingEngine {
             matchResult match {
                 case Some(result) =>
                     val token = text.substring(0, result.end)
-                    parsingContext.onSuccess(parsingState(parsingState.textIndex + token.length, ResultParsingElement(token)))
+                    val nextIndex = parsingState.textIndex + token.length
+                    parsingContext.onSuccess(parsingState(nextIndex, ResultParsingElement(token)))
+                      .onCacheResult((parsingState.textIndex, parsingElement.srcId()), nextIndex, ResultParsingElement(token))
                 case None =>
                     parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
@@ -38,13 +40,18 @@ object BaseParsingEngine {
             val matchResult = parser(text)
             matchResult match {
                 case Some(token) =>
-                    parsingContext.onSuccess(parsingState(parsingState.textIndex + token.length, ResultParsingElement(token)))
+                    val nextIndex = parsingState.textIndex + token.length
+                    parsingContext.onSuccess(parsingState(nextIndex, ResultParsingElement(token)))
+                      .onCacheResult((parsingState.textIndex, parsingElement.srcId()), nextIndex, ResultParsingElement(token))
                 case None =>
                     parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
 
         case parsingElement@OptionParsingElement(reference) =>
-            parsingContext.onSuccess(parsingState(ResultParsingElement(None))).onSuccess(parsingState(parsingElement)(reference).markSplitIndex())
+            val resultElement = ResultParsingElement(None)
+            parsingContext.onSuccess(parsingState(resultElement))
+              .onCacheResult((parsingState.textIndex, parsingElement.srcId()), parsingState.textIndex, resultElement)
+              .onSuccess(parsingState(parsingElement)(reference).markSplitIndex())
 
         case parsingElement@RepeatParsingElement(pe0, _) =>
             parsingContext.onSuccess(parsingState(parsingElement)(pe0))
@@ -60,8 +67,7 @@ object BaseParsingEngine {
     }
 
     private def reduceResultElement[A](parsingContext: ParsingContext, parsingState: ParsingState, resultElement: ResultParsingElement[A], value: A) = {
-        val headIndex = parsingState.parsingStack.head._1
-        val headElement = parsingState.parsingStack.head._2
+        val (headIndex, headElement) = parsingState.parsingStack.head
         val remainState = parsingState.tail()
         headElement match {
             case parsingElement: RepeatParsingElement[_] =>
@@ -94,14 +100,22 @@ object BaseParsingEngine {
                 }
 
             case _: OptionParsingElement[_] =>
-                parsingContext.onSuccess(remainState(ResultParsingElement(Some(value))))
+                val parsingResultElement: ResultParsingElement[_] = ResultParsingElement(Some(value))
+                parsingContext.onSuccess(remainState(parsingResultElement))
+                  .onCacheResult((headIndex, headElement.srcId()), remainState.textIndex, parsingResultElement)
 
             case _: OrParsingElement[_, _] =>
                 parsingContext.onSuccess(remainState(OrParsingEngine.reduce(headElement, value)))
 
             case _ =>
-                val nextPair = (headIndex, AndParsingEngine.reduce(headElement, value))
-                parsingContext.onSuccess(remainState(nextPair))
+                val nextResult = AndParsingEngine.reduce(headElement, value)
+                nextResult match {
+                case resultParsingElement: ResultParsingElement[_] =>
+                    parsingContext.onSuccess(remainState((headIndex, nextResult)))
+                      .onCacheResult((headIndex, headElement.srcId()), remainState.textIndex, resultParsingElement)
+                case _ =>
+                    parsingContext.onSuccess(remainState((headIndex, nextResult)))
+                }
         }
     }
 }
