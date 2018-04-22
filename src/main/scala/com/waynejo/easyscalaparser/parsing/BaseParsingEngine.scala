@@ -69,19 +69,22 @@ object BaseParsingEngine {
     private def reduceResultElement[A](parsingContext: ParsingContext, parsingState: ParsingState, resultElement: ResultParsingElement[A], value: A) = {
         val (headIndex, headElement) = parsingState.parsingStack.head
         val remainState = parsingState.tail()
+        val cacheKey = (headIndex, headElement.srcId())
         headElement match {
             case parsingElement: RepeatParsingElement[_] =>
                 val element = parsingElement.asInstanceOf[RepeatParsingElement[A]]
                 parsingContext.onSuccess(remainState(resultElement).markSplitIndex())
-                  .onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, 0, Integer.MAX_VALUE, value)).markSplitIndex()(element.parsingElement))
+                  .onCacheResult(cacheKey, remainState.textIndex, resultElement)
+                  .onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, 0, Integer.MAX_VALUE, value, element.srcId())).markSplitIndex()(element.parsingElement))
 
             case parsingElement: TimesParsingElement[_] =>
                 val element = parsingElement.asInstanceOf[TimesParsingElement[A]]
                 if (element.lower == 1 && element.upper > 0) {
                     parsingContext.onSuccess(remainState(resultElement))
-                      .onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, element.lower - 1, element.upper - 1, value))(element.parsingElement).markSplitIndex())
+                      .onCacheResult(cacheKey, remainState.textIndex, resultElement)
+                      .onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, element.lower - 1, element.upper - 1, value, element.srcId()))(element.parsingElement).markSplitIndex())
                 } else if (element.lower > 0 && element.upper > 0) {
-                    parsingContext.onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, element.lower - 1, element.upper - 1, value))(element.parsingElement))
+                    parsingContext.onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, element.lower - 1, element.upper - 1, value, element.srcId()))(element.parsingElement))
                 } else {
                     parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
                 }
@@ -92,6 +95,7 @@ object BaseParsingEngine {
                 val nextElement = element.copy(lower = element.lower - 1, upper = element.upper - 1)
                 if (0 >= nextElement.lower && 0 <= nextElement.upper) {
                     parsingContext.onSuccess(remainState(ResultParsingElement(nextValue)))
+                      .onCacheResult(cacheKey, remainState.textIndex, resultElement)
                       .onSuccess(remainState(nextElement.copy(lastElement = nextValue)).markSplitIndex()(nextElement.parsingElement))
                 } else if (0 < nextElement.lower && 0 <= nextElement.upper) {
                     parsingContext.onSuccess(remainState(nextElement.copy(lastElement = nextValue))(nextElement.parsingElement))
@@ -102,19 +106,19 @@ object BaseParsingEngine {
             case _: OptionParsingElement[_] =>
                 val parsingResultElement: ResultParsingElement[_] = ResultParsingElement(Some(value))
                 parsingContext.onSuccess(remainState(parsingResultElement))
-                  .onCacheResult((headIndex, headElement.srcId()), remainState.textIndex, parsingResultElement)
+                  .onCacheResult(cacheKey, remainState.textIndex, parsingResultElement)
 
             case _: OrParsingElement[_, _] =>
                 val resultState = OrParsingEngine.reduce(headElement, value)
                 parsingContext.onSuccess(remainState(resultState))
-                  .onCacheResult((headIndex, headElement.srcId()), remainState.textIndex, resultState)
+                  .onCacheResult(cacheKey, remainState.textIndex, resultState)
 
             case _ =>
                 val nextResult = AndParsingEngine.reduce(headElement, value)
                 nextResult match {
                 case resultParsingElement: ResultParsingElement[_] =>
                     parsingContext.onSuccess(remainState((headIndex, nextResult)))
-                      .onCacheResult((headIndex, headElement.srcId()), remainState.textIndex, resultParsingElement)
+                      .onCacheResult(cacheKey, remainState.textIndex, resultParsingElement)
                 case _ =>
                     parsingContext.onSuccess(remainState((headIndex, nextResult)))
                 }
