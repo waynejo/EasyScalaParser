@@ -3,6 +3,7 @@ package com.waynejo.easyscalaparser
 import com.waynejo.easyscalaparser.element._
 import com.waynejo.easyscalaparser.injection.ParsingIgnore
 import com.waynejo.easyscalaparser.parsing.{AndParsingEngine, BaseParsingEngine, OrParsingEngine}
+import com.waynejo.easyscalaparser.util.ParsingKeyUtil
 
 
 object ParsingEngine {
@@ -12,7 +13,7 @@ object ParsingEngine {
         val ignoredIndex = parsingContext.parsingInjection.ignore(parsingContext.text, textIndex)
         val (nextState, nextContext) = parsingContext.onNext(ignoredIndex, parsingElement)
 
-        val cacheKey = (nextState.textIndex, parsingElement.id)
+        val cacheKey = ParsingKeyUtil.asKey(nextState.textIndex, parsingElement.id)
         if (parsingContext.parsingFailMap.contains(cacheKey)) {
             nextContext
         } else if (parsingContext.parsingSuccessMap.contains(cacheKey)) {

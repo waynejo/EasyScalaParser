@@ -2,6 +2,7 @@ package com.waynejo.easyscalaparser.parsing
 
 import com.waynejo.easyscalaparser.{ParsingState, _}
 import com.waynejo.easyscalaparser.element._
+import com.waynejo.easyscalaparser.util.ParsingKeyUtil
 
 object BaseParsingEngine {
 
@@ -17,7 +18,7 @@ object BaseParsingEngine {
             if (parsingContext.text.substring(parsingState.textIndex).startsWith(token)) {
                 val nextIndex = parsingState.textIndex + token.length
                 parsingContext.onSuccess(parsingState(nextIndex, ResultParsingElement(token)))
-                  .onCacheResult((parsingState.textIndex, parsingElement.srcId()), nextIndex, ResultParsingElement(token))
+                  .onCacheResult(ParsingKeyUtil.asKey(parsingState.textIndex, parsingElement.srcId()), nextIndex, ResultParsingElement(token))
             } else {
                 parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
@@ -30,7 +31,7 @@ object BaseParsingEngine {
                     val token = text.substring(0, result.end)
                     val nextIndex = parsingState.textIndex + token.length
                     parsingContext.onSuccess(parsingState(nextIndex, ResultParsingElement(token)))
-                      .onCacheResult((parsingState.textIndex, parsingElement.srcId()), nextIndex, ResultParsingElement(token))
+                      .onCacheResult(ParsingKeyUtil.asKey(parsingState.textIndex, parsingElement.srcId()), nextIndex, ResultParsingElement(token))
                 case None =>
                     parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
@@ -42,7 +43,7 @@ object BaseParsingEngine {
                 case Some(token) =>
                     val nextIndex = parsingState.textIndex + token.length
                     parsingContext.onSuccess(parsingState(nextIndex, ResultParsingElement(token)))
-                      .onCacheResult((parsingState.textIndex, parsingElement.srcId()), nextIndex, ResultParsingElement(token))
+                      .onCacheResult(ParsingKeyUtil.asKey(parsingState.textIndex, parsingElement.srcId()), nextIndex, ResultParsingElement(token))
                 case None =>
                     parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
@@ -50,7 +51,7 @@ object BaseParsingEngine {
         case parsingElement@OptionParsingElement(reference) =>
             val resultElement = ResultParsingElement(None)
             parsingContext.onSuccess(parsingState(resultElement))
-              .onCacheResult((parsingState.textIndex, parsingElement.srcId()), parsingState.textIndex, resultElement)
+              .onCacheResult(ParsingKeyUtil.asKey(parsingState.textIndex, parsingElement.srcId()), parsingState.textIndex, resultElement)
               .onSuccess(parsingState(parsingElement)(reference).markSplitIndex())
 
         case parsingElement@RepeatParsingElement(pe0, _) =>
@@ -69,7 +70,7 @@ object BaseParsingEngine {
     private def reduceResultElement[A](parsingContext: ParsingContext, parsingState: ParsingState, resultElement: ResultParsingElement[A], value: A) = {
         val (headIndex, headElement) = parsingState.parsingStack.head
         val remainState = parsingState.tail()
-        val cacheKey = (headIndex, headElement.srcId())
+        val cacheKey = ParsingKeyUtil.asKey(headIndex, headElement.srcId())
         headElement match {
             case parsingElement: RepeatParsingElement[_] =>
                 val element = parsingElement.asInstanceOf[RepeatParsingElement[A]]
