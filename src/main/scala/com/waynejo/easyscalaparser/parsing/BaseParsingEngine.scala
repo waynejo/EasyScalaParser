@@ -1,12 +1,12 @@
 package com.waynejo.easyscalaparser.parsing
 
 import com.waynejo.easyscalaparser.{ParsingState, _}
-import com.waynejo.easyscalaparser.element._
+import com.waynejo.easyscalaparser.element.{ParsingElement, _}
 import com.waynejo.easyscalaparser.util.ParsingKeyUtil
 
 object BaseParsingEngine {
 
-    def parse[A](parsingContext: ParsingContext, parsingState: ParsingState): PartialFunction[ParsingElement[A], ParsingContext] = {
+    def parse[A](parsingContext: ParsingContext, parsingState: ParsingState, parsingElement: ParsingElement[A]): ParsingContext = parsingElement match {
         case parsingElement@EndOfStringElement() =>
             if (parsingContext.parsingInjection.ignore(parsingContext.text, parsingState.textIndex) == parsingContext.text.length) {
                 parsingContext.onSuccess(parsingState(parsingState.textIndex, ResultParsingElement[Unit](Unit)))

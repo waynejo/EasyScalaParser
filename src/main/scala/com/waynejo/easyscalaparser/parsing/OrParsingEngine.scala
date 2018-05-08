@@ -11,11 +11,11 @@ object OrParsingEngine {
         }
     }
 
-    def parse[A](parsingContext: ParsingContext, parsingState: ParsingState): PartialFunction[ParsingElement[A], ParsingContext] = {
+    def parse[A](parsingContext: ParsingContext, parsingState: ParsingState, parsingElement: ParsingElement[A]): ParsingContext = parsingElement match {
         case parsingElement@OrParsingElement(pe0, _, next, _) =>
             next match {
                 case Some(nextOrParsingElement) =>
-                    val nextContext = parse(parsingContext, parsingState)(nextOrParsingElement)
+                    val nextContext = parse(parsingContext, parsingState, nextOrParsingElement)
                     nextContext.onSuccess(parsingState(parsingElement).markSplitIndex()(pe0))
                 case None =>
                     parsingContext.onSuccess(parsingState(parsingElement)(pe0))

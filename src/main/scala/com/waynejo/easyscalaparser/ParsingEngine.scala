@@ -20,11 +20,14 @@ object ParsingEngine {
             val nextResults = parsingContext.parsingSuccessMap(cacheKey)
             (nextContext /: nextResults)((acc, x) => acc.onSuccess(nextState(x._1, x._2)))
         } else {
-            val parser = BaseParsingEngine.parse[A](nextContext, nextState)
-              .orElse(AndParsingEngine.parse[A](nextContext, nextState, lastElementTextIndex))
-              .orElse(OrParsingEngine.parse[A](nextContext, nextState))
-
-            parser(parsingElement)
+            parsingElement match {
+                case _: OrParsingElement[_, A] =>
+                    OrParsingEngine.parse[A](nextContext, nextState, parsingElement)
+                case _: AndParsingElement[A] =>
+                    AndParsingEngine.parse[A](nextContext, nextState, lastElementTextIndex, parsingElement)
+                case _ =>
+                    BaseParsingEngine.parse[A](nextContext, nextState, parsingElement)
+            }
         }
     }
 

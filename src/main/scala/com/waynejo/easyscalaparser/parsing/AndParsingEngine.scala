@@ -75,7 +75,7 @@ object AndParsingEngine {
         }
     }
 
-    def parse[A](parsingContext: ParsingContext, parsingState: ParsingState, lastElementTextIndex: Int): PartialFunction[ParsingElement[A], ParsingContext] = {
+    def parse[A](parsingContext: ParsingContext, parsingState: ParsingState, lastElementTextIndex: Int, parsingElement: ParsingElement[A]): ParsingContext = parsingElement match {
         case parsingElement@AndParsingElement1(pe0, _, _, _) =>
             parsingContext.onSuccess(parsingState((lastElementTextIndex, parsingElement))(pe0))
 
