@@ -37,11 +37,10 @@ object BaseParsingEngine {
             }
 
         case parsingElement@CustomParsingElement(parser, _) =>
-            val text = parsingContext.text.substring(parsingState.textIndex)
-            val matchResult = parser(text)
+            val matchResult = parser(parsingContext.text, parsingState.textIndex)
             matchResult match {
-                case Some(token) =>
-                    val nextIndex = parsingState.textIndex + token.length
+                case Some(nextIndex) =>
+                    val token = parsingContext.text.substring(parsingState.textIndex, nextIndex)
                     parsingContext.onSuccess(parsingState(nextIndex, ResultParsingElement(token)))
                       .onCacheResult(ParsingKeyUtil.asKey(parsingState.textIndex, parsingElement.srcId()), nextIndex, ResultParsingElement(token))
                 case None =>
