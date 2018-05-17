@@ -10,9 +10,11 @@ object ParsingEngine {
 
     def _parse[A](parsingContext: ParsingContext, lastElementTextIndex: Int, parsingElement: ParsingElement[A], injectionCache: Array[Int]): ParsingContext = {
         val textIndex = parsingContext.parsingState.head.textIndex
-        val ignoredIndex = if (-1 == injectionCache(textIndex)) {
+        val ignoredIndex = if (textIndex >= injectionCache.length || -1 == injectionCache(textIndex)) {
             val nextIndex = parsingContext.parsingInjection.ignore(parsingContext.text, textIndex)
-            injectionCache(textIndex) = nextIndex
+            if (textIndex < injectionCache.length) {
+                injectionCache(textIndex) = nextIndex
+            }
             nextIndex
         } else {
             injectionCache(textIndex)
