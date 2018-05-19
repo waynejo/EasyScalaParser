@@ -46,6 +46,8 @@ object BaseParsingEngine {
                 case None =>
                     parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
             }
+        case TextIndexParsingElement() =>
+            parsingContext.onSuccess(parsingState(parsingState.textIndex, ResultParsingElement(parsingState.textIndex)))
 
         case parsingElement@OptionParsingElement(reference) =>
             val resultElement = ResultParsingElement(None)
