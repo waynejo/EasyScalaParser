@@ -5,12 +5,12 @@ import com.waynejo.easyscalaparser.element.{ParsingElement, SimpleParsingElement
 case class ParsingFailInfo(failReasons: Array[ParsingFailReason] = Array(), lastFailParsingState: ParsingState = ParsingState(), lastParsingElement: ParsingElement[_] = SimpleParsingElement(""))
 
 object ParsingFailInfo {
-    private val parsingFailReasonNum = 10
+  private val parsingFailReasonNum = 10
 
-    def apply[A](parsingContext: ParsingContext, parsingState: ParsingState, parsingElement: ParsingElement[A]): ParsingFailInfo = {
-        val failReason = ParsingFailReason(parsingState.textIndex, parsingElement.name, parsingState.parsingStack)
-        val newInfo = parsingContext.parsingFailInfo.failReasons :+ failReason
-        val orderedInfo = newInfo.sortBy(-_.index).take(parsingFailReasonNum)
-        ParsingFailInfo(orderedInfo, parsingState, parsingElement)
-    }
+  def apply[A](parsingContext: ParsingContext, parsingState: ParsingState, parsingElement: ParsingElement[A]): ParsingFailInfo = {
+    val failReason = ParsingFailReason(parsingState.textIndex, parsingElement.name, parsingState.parsingStack)
+    val newInfo = parsingContext.parsingFailInfo.failReasons :+ failReason
+    val orderedInfo = newInfo.sortBy(-_.index).take(parsingFailReasonNum)
+    ParsingFailInfo(orderedInfo, parsingState, parsingElement)
+  }
 }

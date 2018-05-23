@@ -16,39 +16,39 @@ case class ParsingContext(
                            parsingSuccessMap: HashMap[Long, Vector[(Int, ResultParsingElement[_])]] = HashMap[Long, Vector[(Int, ResultParsingElement[_])]]()
                          ) {
 
-    def onFail(parsingFailInfo: ParsingFailInfo): ParsingContext = {
-        val lastFailedParsingState = parsingFailInfo.lastFailParsingState
-        val takeNum = lastFailedParsingState.parsingStack.size - lastFailedParsingState.splitIndex
-        val failedElement = (parsingFailInfo.lastFailParsingState.textIndex, parsingFailInfo.lastParsingElement)
-        val failedElements = failedElement :: lastFailedParsingState.parsingStack.take(takeNum)
-        val nextFailMap = (parsingFailMap /: failedElements)((acc, x) => acc.updated(ParsingKeyUtil.asKey(x._1, x._2.srcId()), true))
-        copy(
-            parsingFailInfo = parsingFailInfo,
-            parsingFailMap = nextFailMap,
-            parsingState = parsingState.filter(state => {
-                state.parsingStack.forall(x => !nextFailMap.contains(ParsingKeyUtil.asKey(x._1, x._2.id)))
-            })
-        )
-    }
+  def onFail(parsingFailInfo: ParsingFailInfo): ParsingContext = {
+    val lastFailedParsingState = parsingFailInfo.lastFailParsingState
+    val takeNum = lastFailedParsingState.parsingStack.size - lastFailedParsingState.splitIndex
+    val failedElement = (parsingFailInfo.lastFailParsingState.textIndex, parsingFailInfo.lastParsingElement)
+    val failedElements = failedElement :: lastFailedParsingState.parsingStack.take(takeNum)
+    val nextFailMap = (parsingFailMap /: failedElements) ((acc, x) => acc.updated(ParsingKeyUtil.asKey(x._1, x._2.srcId()), true))
+    copy(
+      parsingFailInfo = parsingFailInfo,
+      parsingFailMap = nextFailMap,
+      parsingState = parsingState.filter(state => {
+        state.parsingStack.forall(x => !nextFailMap.contains(ParsingKeyUtil.asKey(x._1, x._2.id)))
+      })
+    )
+  }
 
-    def onSuccess[A](successState: ParsingState): ParsingContext = {
-        copy(parsingState = successState :: parsingState)
-    }
+  def onSuccess[A](successState: ParsingState): ParsingContext = {
+    copy(parsingState = successState :: parsingState)
+  }
 
-    def onCacheResult[A](key: Long, nextIndex: Int, element: ResultParsingElement[_]): ParsingContext = {
-        val nextValue = parsingSuccessMap.get(key)
-            .map(_ :+ (nextIndex, element))
-            .getOrElse(Vector[(Int, ResultParsingElement[_])]((nextIndex, element)))
+  def onCacheResult[A](key: Long, nextIndex: Int, element: ResultParsingElement[_]): ParsingContext = {
+    val nextValue = parsingSuccessMap.get(key)
+      .map(_ :+ (nextIndex, element))
+      .getOrElse(Vector[(Int, ResultParsingElement[_])]((nextIndex, element)))
 
-        copy(parsingSuccessMap = parsingSuccessMap.updated(key, nextValue))
-    }
+    copy(parsingSuccessMap = parsingSuccessMap.updated(key, nextValue))
+  }
 
-    def onNext[A](textIndex: Int, parsingElement: ParsingElement[A]): (ParsingState, ParsingContext) = {
-        val state = parsingState.head
-        val nextState = state.copy(
-            textIndex = textIndex,
-            parsingStack = state.parsingStack.tail
-        )
-        (nextState, copy(parsingState = parsingState.tail))
-    }
+  def onNext[A](textIndex: Int, parsingElement: ParsingElement[A]): (ParsingState, ParsingContext) = {
+    val state = parsingState.head
+    val nextState = state.copy(
+      textIndex = textIndex,
+      parsingStack = state.parsingStack.tail
+    )
+    (nextState, copy(parsingState = parsingState.tail))
+  }
 }
