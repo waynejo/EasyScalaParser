@@ -1,7 +1,14 @@
 package com.waynejo.easyscalaparser.element
 
-case class ResultParsingElement[A](value: A) extends ParsingElement[A] with TerminalParsingElement {
+import com.waynejo.easyscalaparser.util.IdGenerator
+
+case class ResultParsingElement[A](value: A, override val id: Int = 0) extends ParsingElement[A] with TerminalParsingElement {
   def name: String = {
     ""
+  }
+
+  def clone(idGenerator: IdGenerator): ParsingElement[A] = {
+    val nextId = idGenerator.next()
+    copy(id = nextId)
   }
 }

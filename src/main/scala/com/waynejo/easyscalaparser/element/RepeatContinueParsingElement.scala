@@ -1,9 +1,14 @@
 package com.waynejo.easyscalaparser.element
 
-case class RepeatContinueParsingElement[A](parsingElement: ParsingElement[A], reducer: (A, A) => A, lower: Int, upper: Int, lastElement: A, srcElementId: Int) extends ParsingElement[A] {
+import com.waynejo.easyscalaparser.util.IdGenerator
+
+case class RepeatContinueParsingElement[A](parsingElement: ParsingElement[A], reducer: (A, A) => A, lower: Int, upper: Int, lastElement: A, override val id: Int = 0, override val srcId: Int = 0) extends ParsingElement[A] {
   def name: String = {
     ""
   }
 
-  override def srcId(): Int = srcElementId
+  def clone(idGenerator: IdGenerator): ParsingElement[A] = {
+    val nextId = idGenerator.next()
+    copy(id = nextId, srcId = nextId)
+  }
 }

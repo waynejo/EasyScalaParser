@@ -1,16 +1,22 @@
 package com.waynejo.easyscalaparser.element
 
-case class CustomParsingElement(parser: (String, Int) => Option[Int], name: String) extends ParsingElement[String] with TerminalParsingElement {
+import com.waynejo.easyscalaparser.util.IdGenerator
+
+case class CustomParsingElement(parser: (String, Int) => Option[Int], name: String, override val id: Int) extends ParsingElement[String] with TerminalParsingElement {
+
+  def clone(idGenerator: IdGenerator): ParsingElement[String] = {
+    copy(id = idGenerator.next())
+  }
 }
 
 object CustomParsingElement {
   def apply(parser: String => Option[String], name: String = ""): CustomParsingElement = {
     new CustomParsingElement((text: String, idx: Int) => {
       parser(text.substring(idx)).map(x => idx + x.length)
-    }, name)
+    }, name, 0)
   }
 
   def apply(parser: (String, Int) => Option[Int]): CustomParsingElement = {
-    new CustomParsingElement(parser, "")
+    new CustomParsingElement(parser, "", 0)
   }
 }

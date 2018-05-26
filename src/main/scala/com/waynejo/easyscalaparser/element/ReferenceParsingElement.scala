@@ -1,4 +1,10 @@
 package com.waynejo.easyscalaparser.element
 
-case class ReferenceParsingElement[A](reference: () => ParsingElement[A], name: String = "") extends ParsingElement[A] {
+import com.waynejo.easyscalaparser.util.IdGenerator
+
+case class ReferenceParsingElement[A](reference: () => ParsingElement[A], name: String = "", override val id: Int = 0) extends ParsingElement[A] {
+
+  def clone(idGenerator: IdGenerator): ParsingElement[A] = {
+    copy(id = idGenerator.next())
+  }
 }

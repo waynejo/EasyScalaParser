@@ -18,7 +18,7 @@ object ParsingEngine {
       context.parsingState match {
         case Nil =>
           Left(ErrorMessageBuilder.build(text)(context.parsingFailInfo))
-        case ParsingState((_, ResultParsingElement(result)) :: Nil, _, _) :: _ =>
+        case ParsingState((_, ResultParsingElement(result, _)) :: Nil, _, _) :: _ =>
           Right(result.asInstanceOf[A])
         case x :: _ =>
           val nextContext = _parse(context, x.parsingStack.head._1, x.parsingStack.head._2, injectionCache)

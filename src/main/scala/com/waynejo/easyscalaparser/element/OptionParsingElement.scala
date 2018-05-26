@@ -1,7 +1,13 @@
 package com.waynejo.easyscalaparser.element
 
-case class OptionParsingElement[A](parsingElement: ParsingElement[A]) extends ParsingElement[Option[A]] {
+import com.waynejo.easyscalaparser.util.IdGenerator
+
+case class OptionParsingElement[A](parsingElement: ParsingElement[A], override val id: Int = 0) extends ParsingElement[Option[A]] {
   def name: String = {
     ""
+  }
+
+  def clone(idGenerator: IdGenerator): ParsingElement[Option[A]] = {
+    copy(id = idGenerator.next())
   }
 }
