@@ -21,7 +21,13 @@ case class ParsingContext(
     val takeNum = lastFailedParsingState.parsingStack.size - lastFailedParsingState.splitIndex
     val failedElement = (parsingFailInfo.lastFailParsingState.textIndex, parsingFailInfo.lastParsingElement)
     val failedElements = failedElement :: lastFailedParsingState.parsingStack.take(takeNum)
-    val nextFailMap = (parsingFailMap /: failedElements) ((acc, x) => acc.updated(ParsingKeyUtil.asKey(x._1, x._2.srcId), true))
+    val nextFailMap = (parsingFailMap /: failedElements) ((acc, x) => {
+      if (-1 != x._2.srcId) {
+        acc.updated(ParsingKeyUtil.asKey(x._1, x._2.srcId), true)
+      } else {
+        acc
+      }
+    })
     copy(
       parsingFailInfo = parsingFailInfo,
       parsingFailMap = nextFailMap,

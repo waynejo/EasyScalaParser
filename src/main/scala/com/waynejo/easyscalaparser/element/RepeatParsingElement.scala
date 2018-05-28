@@ -9,6 +9,6 @@ case class RepeatParsingElement[A](parsingElement: ParsingElement[A], reducer: (
 
   def clone(idGenerator: IdGenerator): ParsingElement[A] = {
     val nextId = idGenerator.next()
-    copy(id = nextId, srcId = nextId)
+    copy(parsingElement = parsingElement.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }

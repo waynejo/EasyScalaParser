@@ -64,7 +64,7 @@ object BaseParsingEngine {
     case ReferenceParsingElement(reference, _, _) =>
       parsingContext.onSuccess(parsingState(reference()))
 
-    case resultElement@ResultParsingElement(value, _) =>
+    case resultElement@ResultParsingElement(value) =>
       reduceResultElement(parsingContext, parsingState, resultElement, value)
   }
 
@@ -77,16 +77,16 @@ object BaseParsingEngine {
         val element = parsingElement.asInstanceOf[RepeatParsingElement[A]]
         parsingContext.onSuccess(remainState(resultElement).markSplitIndex())
           .onCacheResult(cacheKey, remainState.textIndex, resultElement)
-          .onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, 0, Integer.MAX_VALUE, value, element.srcId)).markSplitIndex()(element.parsingElement))
+          .onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, 0, Integer.MAX_VALUE, value, -1, element.srcId)).markSplitIndex()(element.parsingElement))
 
       case parsingElement: TimesParsingElement[_] =>
         val element = parsingElement.asInstanceOf[TimesParsingElement[A]]
         if (element.lower == 1 && element.upper > 0) {
           parsingContext.onSuccess(remainState(resultElement))
             .onCacheResult(cacheKey, remainState.textIndex, resultElement)
-            .onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, element.lower - 1, element.upper - 1, value, element.srcId))(element.parsingElement).markSplitIndex())
+            .onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, element.lower - 1, element.upper - 1, value, -1, element.srcId))(element.parsingElement).markSplitIndex())
         } else if (element.lower > 0 && element.upper > 0) {
-          parsingContext.onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, element.lower - 1, element.upper - 1, value, element.srcId))(element.parsingElement))
+          parsingContext.onSuccess(remainState(RepeatContinueParsingElement[A](element.parsingElement, element.reducer, element.lower - 1, element.upper - 1, value, -1, element.srcId))(element.parsingElement))
         } else {
           parsingContext.onFail(ParsingFailInfo(parsingContext, parsingState, parsingElement))
         }
