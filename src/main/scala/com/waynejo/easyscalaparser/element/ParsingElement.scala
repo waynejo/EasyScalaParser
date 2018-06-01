@@ -8,7 +8,7 @@ import com.waynejo.easyscalaparser.util.IdGenerator
 
 abstract class ParsingElement[A] {
 
-  val id: Int = ParsingElement.nextId.incrementAndGet()
+  val id: Int = -1
   def srcId: Int = id
 
   def name: String
@@ -34,8 +34,4 @@ abstract class ParsingElement[A] {
   }
 
   def clone(idGenerator: IdGenerator): ParsingElement[A]
-}
-
-object ParsingElement {
-  val nextId = new AtomicInteger(0)
 }
