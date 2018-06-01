@@ -13,8 +13,8 @@ abstract class ParsingElement[A] {
 
   def name: String
 
-  def parse(text: String, parsingInjection: ParsingIgnore = ParsingIgnoreNothing): Either[String, A] = {
-    ParsingEngine.parse(this, text, parsingInjection)
+  def parse(text: String, parsingInjection: ParsingIgnore = ParsingIgnoreNothing, maxErrorTextNum: Int = 10): Either[String, A] = {
+    ParsingEngine.parse(this, text, parsingInjection, maxErrorTextNum)
   }
 
   def option: ParsingElement[Option[A]] = {

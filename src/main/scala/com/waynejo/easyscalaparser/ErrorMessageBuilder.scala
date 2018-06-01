@@ -1,7 +1,6 @@
 package com.waynejo.easyscalaparser
 
-object ErrorMessageBuilder {
-  val MAX_ACTUAL_TEXT_LENGTH = 20
+case class ErrorMessageBuilder(maxErrorTextNum: Int) {
 
   def build(text: String)(parsingFailInfo: ParsingFailInfo): String = {
     parsingFailInfo.failReasons.map(x => {
@@ -28,8 +27,8 @@ object ErrorMessageBuilder {
   }
 
   def actualText(text: String, index: Int): String = {
-    val result = if (text.length > index + MAX_ACTUAL_TEXT_LENGTH) {
-      text.substring(index, index + MAX_ACTUAL_TEXT_LENGTH) + "..."
+    val result = if (text.length > index + maxErrorTextNum) {
+      text.substring(index, index + maxErrorTextNum) + "..."
     } else {
       text.substring(index)
     }

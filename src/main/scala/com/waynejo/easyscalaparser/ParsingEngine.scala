@@ -8,17 +8,18 @@ import com.waynejo.easyscalaparser.util.{IdGenerator, ParsingKeyUtil}
 
 object ParsingEngine {
 
-  def parse[A](parsingElement: ParsingElement[A], text: String, parsingInjection: ParsingIgnore): Either[String, A] = {
+  def parse[A](parsingElement: ParsingElement[A], text: String, parsingInjection: ParsingIgnore, maxErrorTextNum: Int = 10): Either[String, A] = {
     val copiedElement = parsingElement.clone(new IdGenerator())
     val parsingElementWithEndOfString = AndParsingElement2(copiedElement, EndOfStringElement(), (x: A, _: Any) => x)
     val parsingState = ParsingState((0, parsingElementWithEndOfString) :: Nil)
     val parsingContext = ParsingContext(text, Nil, parsingInjection, ParsingFailInfo(), parsingState :: Nil)
     val injectionCache = Array.fill(text.length)(-1)
+    val errorMessageBuilder = ErrorMessageBuilder(maxErrorTextNum = maxErrorTextNum)
 
     def _recursiveParse(context: ParsingContext): Either[String, A] = {
       context.parsingState match {
         case Nil =>
-          Left(ErrorMessageBuilder.build(text)(context.parsingFailInfo))
+          Left(errorMessageBuilder.build(text)(context.parsingFailInfo))
         case ParsingState((_, ResultParsingElement(result)) :: Nil, _, _) :: _ =>
           Right(result.asInstanceOf[A])
         case x :: _ =>
