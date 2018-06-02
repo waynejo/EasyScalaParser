@@ -10,6 +10,6 @@ case class RegexParsingElement(token: Regex, override val id: Int = 0) extends P
   }
 
   def clone(idGenerator: IdGenerator): ParsingElement[String] = {
-    copy(id = idGenerator.next())
+    copy(id = idGenerator.nextId(this))
   }
 }

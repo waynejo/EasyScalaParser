@@ -9,6 +9,6 @@ case class EndOfStringElement(override val id: Int = 0) extends ParsingElement[U
   }
 
   def clone(idGenerator: IdGenerator): ParsingElement[Unit] = {
-    copy(id = idGenerator.next())
+    copy(id = idGenerator.nextId(this))
   }
 }

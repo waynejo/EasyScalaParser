@@ -6,7 +6,7 @@ case class TextIndexParsingElement(override val id: Int = 0, override val srcId:
   override def name: String = ""
   
   def clone(idGenerator: IdGenerator): ParsingElement[Int] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(id = nextId, srcId = nextId)
   }
 }

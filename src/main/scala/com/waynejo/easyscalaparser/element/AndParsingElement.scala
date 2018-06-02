@@ -8,7 +8,7 @@ trait AndParsingElement[A] extends ParsingElement[A] {
 case class AndParsingElement1[A, B](pe0: ParsingElement[A], reducer: (A) => B, name: String = "", override val id: Int = 0, override val srcId: Int = 0) extends AndParsingElement[B] {
 
   def clone(idGenerator: IdGenerator): ParsingElement[B] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -17,7 +17,7 @@ case class AndParsingElement2[A, B, C](pe0: ParsingElement[A], pe1: ParsingEleme
   type typeB = B
 
   def clone(idGenerator: IdGenerator): ParsingElement[C] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -27,7 +27,7 @@ case class AndParsingElement3[A, B, C, D](pe0: ParsingElement[A], pe1: ParsingEl
   type typeC = C
 
   def clone(idGenerator: IdGenerator): ParsingElement[D] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -38,7 +38,7 @@ case class AndParsingElement4[A, B, C, D, E](pe0: ParsingElement[A], pe1: Parsin
   type typeD = D
 
   def clone(idGenerator: IdGenerator): ParsingElement[E] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -50,7 +50,7 @@ case class AndParsingElement5[A, B, C, D, E, F](pe0: ParsingElement[A], pe1: Par
   type typeE = E
 
   def clone(idGenerator: IdGenerator): ParsingElement[F] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -63,7 +63,7 @@ case class AndParsingElement6[A, B, C, D, E, F, G](pe0: ParsingElement[A], pe1: 
   type typeF = F
 
   def clone(idGenerator: IdGenerator): ParsingElement[G] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -77,7 +77,7 @@ case class AndParsingElement7[A, B, C, D, E, F, G, H](pe0: ParsingElement[A], pe
   type typeG = G
 
   def clone(idGenerator: IdGenerator): ParsingElement[H] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), pe6 = pe6.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -92,7 +92,7 @@ case class AndParsingElement8[A, B, C, D, E, F, G, H, I](pe0: ParsingElement[A],
   type typeH = H
 
   def clone(idGenerator: IdGenerator): ParsingElement[I] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), pe6 = pe6.clone(idGenerator), pe7 = pe7.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -108,7 +108,7 @@ case class AndParsingElement9[A, B, C, D, E, F, G, H, I, J](pe0: ParsingElement[
   type typeI = I
 
   def clone(idGenerator: IdGenerator): ParsingElement[J] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), pe6 = pe6.clone(idGenerator), pe7 = pe7.clone(idGenerator), pe8 = pe8.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -125,7 +125,7 @@ case class AndParsingElement10[A, B, C, D, E, F, G, H, I, J, K](pe0: ParsingElem
   type typeJ = J
 
   def clone(idGenerator: IdGenerator): ParsingElement[K] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), pe6 = pe6.clone(idGenerator), pe7 = pe7.clone(idGenerator), pe8 = pe8.clone(idGenerator), pe9 = pe9.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -143,7 +143,7 @@ case class AndParsingElement11[A, B, C, D, E, F, G, H, I, J, K, L](pe0: ParsingE
   type typeK = K
 
   def clone(idGenerator: IdGenerator): ParsingElement[L] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), pe6 = pe6.clone(idGenerator), pe7 = pe7.clone(idGenerator), pe8 = pe8.clone(idGenerator), pe9 = pe9.clone(idGenerator), pe10 = pe10.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -162,7 +162,7 @@ case class AndParsingElement12[A, B, C, D, E, F, G, H, I, J, K, L, M](pe0: Parsi
   type typeL = L
 
   def clone(idGenerator: IdGenerator): ParsingElement[M] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), pe6 = pe6.clone(idGenerator), pe7 = pe7.clone(idGenerator), pe8 = pe8.clone(idGenerator), pe9 = pe9.clone(idGenerator), pe10 = pe10.clone(idGenerator), pe11 = pe11.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -182,7 +182,7 @@ case class AndParsingElement13[A, B, C, D, E, F, G, H, I, J, K, L, M, N](pe0: Pa
   type typeM = M
 
   def clone(idGenerator: IdGenerator): ParsingElement[N] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), pe6 = pe6.clone(idGenerator), pe7 = pe7.clone(idGenerator), pe8 = pe8.clone(idGenerator), pe9 = pe9.clone(idGenerator), pe10 = pe10.clone(idGenerator), pe11 = pe11.clone(idGenerator), pe12 = pe12.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -203,7 +203,7 @@ case class AndParsingElement14[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O](pe0:
   type typeN = N
 
   def clone(idGenerator: IdGenerator): ParsingElement[O] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), pe6 = pe6.clone(idGenerator), pe7 = pe7.clone(idGenerator), pe8 = pe8.clone(idGenerator), pe9 = pe9.clone(idGenerator), pe10 = pe10.clone(idGenerator), pe11 = pe11.clone(idGenerator), pe12 = pe12.clone(idGenerator), pe13 = pe13.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -225,7 +225,7 @@ case class AndParsingElement15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P](p
   type typeO = O
 
   def clone(idGenerator: IdGenerator): ParsingElement[P] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), pe6 = pe6.clone(idGenerator), pe7 = pe7.clone(idGenerator), pe8 = pe8.clone(idGenerator), pe9 = pe9.clone(idGenerator), pe10 = pe10.clone(idGenerator), pe11 = pe11.clone(idGenerator), pe12 = pe12.clone(idGenerator), pe13 = pe13.clone(idGenerator), pe14 = pe14.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -248,7 +248,7 @@ case class AndParsingElement16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q
   type typeP = P
 
   def clone(idGenerator: IdGenerator): ParsingElement[Q] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), pe6 = pe6.clone(idGenerator), pe7 = pe7.clone(idGenerator), pe8 = pe8.clone(idGenerator), pe9 = pe9.clone(idGenerator), pe10 = pe10.clone(idGenerator), pe11 = pe11.clone(idGenerator), pe12 = pe12.clone(idGenerator), pe13 = pe13.clone(idGenerator), pe14 = pe14.clone(idGenerator), pe15 = pe15.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -272,7 +272,7 @@ case class AndParsingElement17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q
   type typeQ = Q
 
   def clone(idGenerator: IdGenerator): ParsingElement[R] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), pe6 = pe6.clone(idGenerator), pe7 = pe7.clone(idGenerator), pe8 = pe8.clone(idGenerator), pe9 = pe9.clone(idGenerator), pe10 = pe10.clone(idGenerator), pe11 = pe11.clone(idGenerator), pe12 = pe12.clone(idGenerator), pe13 = pe13.clone(idGenerator), pe14 = pe14.clone(idGenerator), pe15 = pe15.clone(idGenerator), pe16 = pe16.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -297,7 +297,7 @@ case class AndParsingElement18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q
   type typeR = R
 
   def clone(idGenerator: IdGenerator): ParsingElement[S] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), pe6 = pe6.clone(idGenerator), pe7 = pe7.clone(idGenerator), pe8 = pe8.clone(idGenerator), pe9 = pe9.clone(idGenerator), pe10 = pe10.clone(idGenerator), pe11 = pe11.clone(idGenerator), pe12 = pe12.clone(idGenerator), pe13 = pe13.clone(idGenerator), pe14 = pe14.clone(idGenerator), pe15 = pe15.clone(idGenerator), pe16 = pe16.clone(idGenerator), pe17 = pe17.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -323,7 +323,7 @@ case class AndParsingElement19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q
   type typeS = S
 
   def clone(idGenerator: IdGenerator): ParsingElement[T] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), pe6 = pe6.clone(idGenerator), pe7 = pe7.clone(idGenerator), pe8 = pe8.clone(idGenerator), pe9 = pe9.clone(idGenerator), pe10 = pe10.clone(idGenerator), pe11 = pe11.clone(idGenerator), pe12 = pe12.clone(idGenerator), pe13 = pe13.clone(idGenerator), pe14 = pe14.clone(idGenerator), pe15 = pe15.clone(idGenerator), pe16 = pe16.clone(idGenerator), pe17 = pe17.clone(idGenerator), pe18 = pe18.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -350,7 +350,7 @@ case class AndParsingElement20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q
   type typeT = T
 
   def clone(idGenerator: IdGenerator): ParsingElement[U] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), pe6 = pe6.clone(idGenerator), pe7 = pe7.clone(idGenerator), pe8 = pe8.clone(idGenerator), pe9 = pe9.clone(idGenerator), pe10 = pe10.clone(idGenerator), pe11 = pe11.clone(idGenerator), pe12 = pe12.clone(idGenerator), pe13 = pe13.clone(idGenerator), pe14 = pe14.clone(idGenerator), pe15 = pe15.clone(idGenerator), pe16 = pe16.clone(idGenerator), pe17 = pe17.clone(idGenerator), pe18 = pe18.clone(idGenerator), pe19 = pe19.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -378,7 +378,7 @@ case class AndParsingElement21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q
   type typeU = U
 
   def clone(idGenerator: IdGenerator): ParsingElement[V] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), pe6 = pe6.clone(idGenerator), pe7 = pe7.clone(idGenerator), pe8 = pe8.clone(idGenerator), pe9 = pe9.clone(idGenerator), pe10 = pe10.clone(idGenerator), pe11 = pe11.clone(idGenerator), pe12 = pe12.clone(idGenerator), pe13 = pe13.clone(idGenerator), pe14 = pe14.clone(idGenerator), pe15 = pe15.clone(idGenerator), pe16 = pe16.clone(idGenerator), pe17 = pe17.clone(idGenerator), pe18 = pe18.clone(idGenerator), pe19 = pe19.clone(idGenerator), pe20 = pe20.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }
@@ -407,7 +407,7 @@ case class AndParsingElement22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q
   type typeV = V
 
   def clone(idGenerator: IdGenerator): ParsingElement[W] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(pe0 = pe0.clone(idGenerator), pe1 = pe1.clone(idGenerator), pe2 = pe2.clone(idGenerator), pe3 = pe3.clone(idGenerator), pe4 = pe4.clone(idGenerator), pe5 = pe5.clone(idGenerator), pe6 = pe6.clone(idGenerator), pe7 = pe7.clone(idGenerator), pe8 = pe8.clone(idGenerator), pe9 = pe9.clone(idGenerator), pe10 = pe10.clone(idGenerator), pe11 = pe11.clone(idGenerator), pe12 = pe12.clone(idGenerator), pe13 = pe13.clone(idGenerator), pe14 = pe14.clone(idGenerator), pe15 = pe15.clone(idGenerator), pe16 = pe16.clone(idGenerator), pe17 = pe17.clone(idGenerator), pe18 = pe18.clone(idGenerator), pe19 = pe19.clone(idGenerator), pe20 = pe20.clone(idGenerator), pe21 = pe21.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }

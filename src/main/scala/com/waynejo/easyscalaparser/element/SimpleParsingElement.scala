@@ -8,7 +8,7 @@ case class SimpleParsingElement(token: String, override val id: Int = 0, overrid
   }
 
   def clone(idGenerator: IdGenerator): ParsingElement[String] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(id = nextId, srcId = nextId)
   }
 }

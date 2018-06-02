@@ -8,7 +8,7 @@ case class TimesParsingElement[A](parsingElement: ParsingElement[A], lower: Int,
   }
   
   def clone(idGenerator: IdGenerator): ParsingElement[A] = {
-    val nextId = idGenerator.next()
+    val nextId = idGenerator.nextId(this)
     copy(parsingElement = parsingElement.clone(idGenerator), id = nextId, srcId = nextId)
   }
 }

@@ -8,6 +8,6 @@ case class OptionParsingElement[A](parsingElement: ParsingElement[A], override v
   }
 
   def clone(idGenerator: IdGenerator): ParsingElement[Option[A]] = {
-    copy(parsingElement = parsingElement.clone(idGenerator), id = idGenerator.next())
+    copy(parsingElement = parsingElement.clone(idGenerator), id = idGenerator.nextId(this))
   }
 }

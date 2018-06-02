@@ -5,7 +5,7 @@ import com.waynejo.easyscalaparser.util.IdGenerator
 case class CustomParsingElement(parser: (String, Int) => Option[Int], name: String, override val id: Int) extends ParsingElement[String] with TerminalParsingElement {
 
   def clone(idGenerator: IdGenerator): ParsingElement[String] = {
-    copy(id = idGenerator.next())
+    copy(id = idGenerator.nextId(this))
   }
 }
 
