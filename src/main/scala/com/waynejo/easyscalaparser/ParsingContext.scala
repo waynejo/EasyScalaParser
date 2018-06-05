@@ -49,7 +49,7 @@ case class ParsingContext(
     copy(parsingSuccessMap = parsingSuccessMap.updated(key, nextValue))
   }
 
-  def onNext[A](textIndex: Int, parsingElement: ParsingElement[A]): (ParsingState, ParsingContext) = {
+  def onNext[A](textIndex: Int): (ParsingState, ParsingContext) = {
     val state = parsingState.head
     val nextState = state.copy(
       textIndex = textIndex,

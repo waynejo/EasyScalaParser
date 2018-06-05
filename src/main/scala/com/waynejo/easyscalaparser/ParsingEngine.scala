@@ -43,7 +43,7 @@ object ParsingEngine {
       injectionCache(textIndex)
     }
 
-    val (nextState, nextContext) = parsingContext.onNext(ignoredIndex, parsingElement)
+    val (nextState, nextContext) = parsingContext.onNext(ignoredIndex)
 
     val cacheKey = ParsingKeyUtil.asKey(nextState.textIndex, parsingElement.id)
     if (-1 != parsingElement.id && parsingContext.parsingFailMap.contains(cacheKey)) {
