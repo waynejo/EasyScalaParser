@@ -115,6 +115,11 @@ object BaseParsingEngine {
         parsingContext.onSuccess(remainState(resultState))
           .onCacheResult(cacheKey, remainState.textIndex, resultState)
 
+      case duplicatedElement: DuplicatedElement[_] =>
+        parsingContext
+          .onSuccess(remainState(resultElement))
+          .onSuccess(remainState.copy(parsingStack = (remainState.textIndex, resultElement) :: duplicatedElement.parsingStack))
+
       case _ =>
         val nextResult = AndParsingEngine.reduce(headElement, value)
         nextResult match {

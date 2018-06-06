@@ -1,6 +1,6 @@
 package com.waynejo.easyscalaparser
 
-import com.waynejo.easyscalaparser.element.{ParsingElement, ResultParsingElement, TerminalParsingElement}
+import com.waynejo.easyscalaparser.element.{DuplicatedElement, ParsingElement, ResultParsingElement, TerminalParsingElement}
 import com.waynejo.easyscalaparser.injection.ParsingIgnore
 import com.waynejo.easyscalaparser.util.ParsingKeyUtil
 
@@ -56,5 +56,18 @@ case class ParsingContext(
       parsingStack = state.parsingStack.tail
     )
     (nextState, copy(parsingState = parsingState.tail))
+  }
+
+  def onDuplicatedElement[A](duplicatedIdx: Int, parsingElementId: Int, textIdx: Int, element: DuplicatedElement[A]): ParsingContext = {
+    val nextParsingState = parsingState.map(x => {
+      val parsingStack = x.parsingStack
+      val idx = parsingStack.size - duplicatedIdx
+      if (0 <= idx && idx < parsingStack.size && parsingStack(idx)._2.id == parsingElementId) {
+        x.copy(parsingStack = parsingStack.take(idx) ::: (textIdx, element) :: parsingStack.drop(idx))
+      } else {
+        x
+      }
+    })
+    copy(parsingState = nextParsingState)
   }
 }

@@ -31,6 +31,30 @@ object ParsingEngine {
     _recursiveParse(parsingContext)
   }
 
+  private def findDuplicatedParsingElement[A](parsingStack: List[(Int, ParsingElement[_])], textIndex: Int, parsingElement: ParsingElement[A]): Option[Int] = {
+    if (-1 == parsingElement.id) {
+      None
+    } else {
+      def _findDuplicatedParsingElement[A](parsingStack: List[(Int, ParsingElement[_])], textIndex: Int, parsingElement: ParsingElement[A], acc: Int = 0): Option[Int] = {
+        parsingStack match {
+          case (idx, element) :: xs =>
+            if (idx == textIndex) {
+              if (element.srcId == parsingElement.id) {
+                Some(acc)
+              } else {
+                _findDuplicatedParsingElement(xs, textIndex, parsingElement, acc + 1)
+              }
+            } else {
+              None
+            }
+          case Nil =>
+            None
+        }
+      }
+      _findDuplicatedParsingElement(parsingStack, textIndex, parsingElement)
+    }
+  }
+
   def _parse[A](parsingContext: ParsingContext, lastElementTextIndex: Int, parsingElement: ParsingElement[A], injectionCache: Array[Int]): ParsingContext = {
     val textIndex = parsingContext.parsingState.head.textIndex
     val ignoredIndex = if (textIndex >= injectionCache.length || -1 == injectionCache(textIndex)) {
@@ -52,13 +76,20 @@ object ParsingEngine {
       val nextResults = parsingContext.parsingSuccessMap(cacheKey)
       (nextContext /: nextResults) ((acc, x) => acc.onSuccess(nextState(x._1, x._2)))
     } else {
-      parsingElement match {
-        case _: OrParsingElement[_, A] =>
-          OrParsingEngine.parse[A](nextContext, nextState, parsingElement)
-        case _: AndParsingElement[A] =>
-          AndParsingEngine.parse[A](nextContext, nextState, lastElementTextIndex, parsingElement)
-        case _ =>
-          BaseParsingEngine.parse[A](nextContext, nextState, parsingElement)
+      val hasDuplicatedElement = findDuplicatedParsingElement(nextState.parsingStack, ignoredIndex, parsingElement)
+      if (hasDuplicatedElement.isDefined) {
+        val duplicatedIdx = nextState.parsingStack.size - hasDuplicatedElement.get
+        val duplicatedElement = DuplicatedElement(nextState.parsingStack)
+        nextContext.onDuplicatedElement(duplicatedIdx, parsingElement.id, ignoredIndex, duplicatedElement)
+      } else {
+        parsingElement match {
+          case _: OrParsingElement[_, A] =>
+            OrParsingEngine.parse[A](nextContext, nextState, parsingElement)
+          case _: AndParsingElement[A] =>
+            AndParsingEngine.parse[A](nextContext, nextState, lastElementTextIndex, parsingElement)
+          case _ =>
+            BaseParsingEngine.parse[A](nextContext, nextState, parsingElement)
+        }
       }
     }
   }
