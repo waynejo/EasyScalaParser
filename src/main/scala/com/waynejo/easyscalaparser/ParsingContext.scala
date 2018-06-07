@@ -62,7 +62,7 @@ case class ParsingContext(
     val nextParsingState = parsingState.map(x => {
       val parsingStack = x.parsingStack
       val idx = parsingStack.size - duplicatedIdx
-      if (0 <= idx && idx < parsingStack.size && parsingStack(idx)._2.id == parsingElementId) {
+      if (0 <= idx && idx < parsingStack.size && parsingStack(idx)._2.srcId == parsingElementId) {
         x.copy(parsingStack = parsingStack.take(idx) ::: (textIdx, element) :: parsingStack.drop(idx))
       } else {
         x
