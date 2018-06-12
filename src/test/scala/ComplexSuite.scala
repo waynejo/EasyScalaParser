@@ -28,6 +28,37 @@ class ComplexSuite extends FunSuite {
         |[1:2] expected: group3 > group1 > b but acbb""".stripMargin.replace("\r", "")))
   }
 
+  test("Recursive OR") {
+    case class ParsingResult(v: String)
+
+    val rule0 = Parser("group1").and("a", "b") { case (v0, v1) =>
+      ParsingResult(v0 + v1)
+    }
+
+    lazy val rule1: ParsingElement[ParsingResult] = Parser("group2").and(Parser.refer(() => parser), "b") { case (v0, v1) =>
+      ParsingResult(v0.v + v1)
+    }
+
+    lazy val rule2: ParsingElement[ParsingResult] = Parser("group2").and(Parser.refer(() => parser), "c") { case (v0, v1) =>
+      ParsingResult(v0.v + v1)
+    }
+
+    lazy val parser: ParsingElement[ParsingResult] = Parser("group3")
+      .or(rule0)(v => ParsingResult(v.v))
+      .or(rule1)(v => ParsingResult(v.v))
+      .or(rule2)(v => ParsingResult(v.v))
+
+    assert(parser.parse("ab").contains(ParsingResult("ab")))
+    assert(parser.parse("abb").contains(ParsingResult("abb")))
+    assert(parser.parse("abbb").contains(ParsingResult("abbb")))
+    assert(parser.parse("abcbc").contains(ParsingResult("abbb")))
+    assert(parser.parse("aacbbdbc").left.map(x => x.replace("\r", "")) == Left(
+      """[1:3] expected: group3 > group2 > group3 > group1 > b but cbb
+        |[1:3] expected: group3 > group2 > group3 > group2 > group3 > group1 > a but cbb
+        |[1:3] expected: group3 > group2 > group3 > group2 > group3 > group2 > a but cbb
+        |[1:2] expected: group3 > group1 > b but acbb""".stripMargin.replace("\r", "")))
+  }
+
   test("If there is a value that succeeds too early.") {
     case class ParsingResult(v: String)
 
