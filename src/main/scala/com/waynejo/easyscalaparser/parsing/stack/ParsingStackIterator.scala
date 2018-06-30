@@ -1,6 +1,6 @@
 package com.waynejo.easyscalaparser.parsing.stack
 
-import com.waynejo.easyscalaparser.element.{OrParsingElement, ParsingElement, ReferenceParsingElement, TerminalParsingElement}
+import com.waynejo.easyscalaparser.element._
 
 case class ParsingStackIterator(stack: Vector[ParsingElement[_]]) {
 
@@ -17,6 +17,10 @@ case class ParsingStackIterator(stack: Vector[ParsingElement[_]]) {
           }
         case ReferenceParsingElement(reference, _, _) =>
           _next(reference() +: elements.tail)
+        case OptionParsingElement(parsingElement, id) =>
+          _next(parsingElement +: elements.tail) ++ _next(elements.tail)
+        case RepeatParsingElement(parsingElement) =>
+          _next(parsingElement)
       }
     }
 
