@@ -17,10 +17,12 @@ case class ParsingStackIterator(stack: Vector[ParsingElement[_]]) {
           }
         case ReferenceParsingElement(reference, _, _) =>
           _next(reference() +: elements.tail)
-        case OptionParsingElement(parsingElement, id) =>
+        case OptionParsingElement(parsingElement, _) =>
           _next(parsingElement +: elements.tail) ++ _next(elements.tail)
-        case RepeatParsingElement(parsingElement) =>
-          _next(parsingElement)
+        case RepeatParsingElement(parsingElement, reducer, _, srcId) =>
+          _next(parsingElement +: OptionalRepeatParsingElement(parsingElement, reducer, 0, srcId) +: elements.tail)
+        case OptionalRepeatParsingElement(parsingElement, _, _, _) =>
+          _next(parsingElement +: elements) ++ _next(elements.tail)
       }
     }
 
